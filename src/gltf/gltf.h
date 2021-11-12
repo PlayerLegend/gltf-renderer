@@ -86,6 +86,7 @@ struct gltf_accessor {
     gltf_buffer_view * buffer_view;
     size_t byte_offset;
     size_t count;
+    bool normalized;
     struct {
 	bool present;
 	size_t count;
@@ -147,6 +148,57 @@ struct gltf {
     struct range(gltf_mesh) meshes;
 };
 
+typedef union {
+    union {
+	int8_t * i8;
+	uint8_t * u8;
+	int16_t * i16;
+	uint16_t * u16;
+	uint32_t * u32;
+	float * f;
+    };
+    unsigned char * pointer;
+}
+    gltf_component;
+
+typedef struct {
+    gltf_accessor * accessor;
+    gltf_accessor_type type;
+    gltf_accessor_component_type component_type;
+    size_t component_size;
+    size_t byte_stride;
+    bool normalized;
+    struct {
+	range_unsigned_char accessor;
+    }
+	range;
+}
+    gltf_accessor_env;
+
+inline static size_t gltf_component_size (gltf_accessor_component_type type)
+{
+    switch (type)
+    {
+    default: return -1;
+    case GLTF_ACCESSOR_COMPONENT_BYTE: return 1;
+    case GLTF_ACCESSOR_COMPONENT_UNSIGNED_BYTE: return 1;
+    case GLTF_ACCESSOR_COMPONENT_SHORT: return 2;
+    case GLTF_ACCESSOR_COMPONENT_UNSIGNED_SHORT: return 2;
+    case GLTF_ACCESSOR_COMPONENT_UNSIGNED_INT: return 4;
+    case GLTF_ACCESSOR_COMPONENT_FLOAT: return 4;
+    }
+}
+
+#define for_gltf_accessor(component, accessor_env)	\
+    for ((component).pointer = (accessor_env).range.accessor.begin; (component).pointer < (accessor_env).range.accessor.end; (component).pointer += (accessor_env).byte_stride)
+
 bool glb_toc_load_memory (glb_toc * toc, void * start, size_t size);
 
 bool gltf_from_json (gltf * gltf, json_value * json_root_value);
+
+bool gltf_accessor_env_setup (gltf_accessor_env * env, const glb_toc * toc, gltf_accessor * import_accessor);
+
+inline static void gltf_clear (gltf * gltf)
+{
+    // todo
+}

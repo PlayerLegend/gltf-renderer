@@ -24,9 +24,12 @@ typedef struct {
 }
     va_buffer;
 
-
-
-range_typedef(fvec3, fvec3);
+typedef struct {
+    GLuint shader_program;
+    GLuint VAO;
+    GLuint VBO;
+}
+    mesh_handle;
 
 void va_buffer_alloc_vertex_count (va_buffer * buffer, size_t count)
 {

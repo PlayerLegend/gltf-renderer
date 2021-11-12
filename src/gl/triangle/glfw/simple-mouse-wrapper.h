@@ -23,3 +23,4 @@ void set_current_window (window * window);
 void destroy_window (window * window);
 void swap_window (window * window);
 bool window_should_close (window * window);
+void inputs_lock_mouse (window * window);

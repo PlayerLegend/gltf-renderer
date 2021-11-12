@@ -337,6 +337,8 @@ static json_object * _read_object (range_const_char * text, json_tmp * tmp)
 {
     json_object * object = calloc (1, sizeof(*object));
     
+    table_string_resize (object->map, 1031);
+	
     assert (*text->begin == '{');
 
     text->begin++;

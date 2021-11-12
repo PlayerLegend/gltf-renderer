@@ -292,7 +292,7 @@ static bool _gltf_read_buffer_view (void * output, gltf * gltf, const json_objec
     gltf_buffer_view->buffer = reference_array(gltf->buffers, json_buffer_view, "buffer");
     gltf_buffer_view->byte_length = json_get_number(.success = &success, .parent = json_buffer_view, .key = "byteLength");
     gltf_buffer_view->byte_offset = json_get_number(.success = &success, .parent = json_buffer_view, .key = "byteOffset", .optional = true);
-    gltf_buffer_view->byte_stride = json_get_number(.success = &success, .parent = json_buffer_view, .key = "byteStride", .optional = true, .default_value = 1);
+    gltf_buffer_view->byte_stride = json_get_number(.success = &success, .parent = json_buffer_view, .key = "byteStride", .optional = true, .default_value = 0);
     
     if (!success || !gltf_buffer_view->buffer)
     {
@@ -362,8 +362,7 @@ static bool _gltf_read_accessor (void * output, gltf * gltf, const json_object *
 	gltf_accessor->sparse.present = true;
 	if (!_gltf_read_accessor_sparse(gltf_accessor, gltf, sparse))
 	{
-	    log_error ("GLTF JSON failed to read sparse accessor");
-	    return false;
+	    log_fatal ("GLTF JSON failed to read sparse accessor");
 	}
     }
 
@@ -372,24 +371,27 @@ static bool _gltf_read_accessor (void * output, gltf * gltf, const json_object *
     gltf_accessor->byte_offset	  = json_get_number(.success = &success, .parent = json_accessor, .key = "byteOffset", .optional = true, .default_value = 0);
     gltf_accessor->component_type = json_get_number(.success = &success, .parent = json_accessor, .key = "componentType");
     gltf_accessor->count	  = json_get_number(.success = &success, .parent = json_accessor, .key = "count");
+    gltf_accessor->normalized     = json_get_bool(.success = &success, .parent = json_accessor, .key = "normalized", .optional = true, .default_value = false);
     accessor_type		  = json_get_string(.success = &success, .parent = json_accessor, .key = "type");
+
+    if (gltf_accessor->normalized == true && (gltf_accessor->component_type == GLTF_ACCESSOR_COMPONENT_FLOAT || gltf_accessor->component_type == GLTF_ACCESSOR_COMPONENT_UNSIGNED_INT))
+    {
+	log_fatal ("Normalized components specified with component type float or uint32 is invalid");
+    }
     
     if (!success)
     {
-	log_error ("GLTF JSON failed to read component of accessor");
-	return false;	
+	log_fatal ("GLTF JSON failed to read component of accessor");
     }
 
     if (!_validate_component_type (gltf_accessor->component_type))
     {
-	log_error ("GLTF JSON accessor has invalid component type");
-	return false;
+	log_fatal ("GLTF JSON accessor has invalid component type");
     }
     
     if (!_set_accessor_type (&gltf_accessor->type, accessor_type))
     {
-	log_error ("GLTF JSON accessor has invalid type");
-	return false;
+	log_fatal ("GLTF JSON accessor has invalid type");
     }
 
     gltf_accessor->buffer_view = reference_array (gltf->buffer_views, json_accessor, "bufferView");
@@ -607,8 +609,61 @@ fail:
     return false;
 }
 
-void gltf_dummy()
+bool gltf_accessor_env_setup (gltf_accessor_env * env, const glb_toc * toc, gltf_accessor * import_accessor)
 {
-    _gltf_read_mesh(NULL, NULL, NULL);
-    _gltf_read_material(NULL, NULL, NULL);
+    env->accessor = import_accessor;
+
+    env->type = env->accessor->type;
+    env->normalized = env->accessor->normalized;
+
+    gltf_buffer_view * buffer_view = env->accessor->buffer_view;
+
+    gltf_buffer * buffer = buffer_view->buffer;
+
+    unsigned char * buffer_data = buffer->data ? buffer->data : toc->bin->data;
+
+    if (buffer_data == toc->bin->data)
+    {
+	assert (buffer->byte_length <= toc->bin->length);
+    }
+
+    env->component_type = env->accessor->component_type;
+    env->component_size = gltf_component_size (env->accessor->component_type);
+    
+    range_unsigned_char range_buffer = { .begin = buffer_data, .end = buffer_data + buffer->byte_length };
+
+    range_unsigned_char range_buffer_view = { .begin = range_buffer.begin + buffer_view->byte_offset, .end = range_buffer_view.begin + buffer_view->byte_length };
+
+    log_debug ("buffer_view byte stride: %d", buffer_view->byte_stride);
+    log_debug ("else %d * %d = %d", env->component_size, env->type, env->component_size * env->type);
+    env->byte_stride = !buffer_view->byte_stride ? (env->component_size * env->type) : buffer_view->byte_stride;
+    
+
+    log_debug ("%d mod %d * %d (=%d) == %d", env->byte_stride, env->component_size, env->type, env->component_size * env->type, env->byte_stride % (env->component_size * env->type));
+    
+    assert (env->byte_stride % (env->component_size * env->type) == 0);
+    assert (env->byte_stride >= env->component_size * env->type);
+
+    env->range.accessor.begin = range_buffer_view.begin + env->accessor->byte_offset;
+    env->range.accessor.end = env->range.accessor.begin + env->accessor->count * env->byte_stride;
+
+    log_debug ("%d vs %d", range_count(range_buffer_view), env->accessor->byte_offset + env->accessor->count * env->byte_stride);
+    
+    if (range_buffer_view.begin < range_buffer.begin || range_buffer.end < range_buffer_view.end)
+    {
+	log_fatal ("Buffer view range is out of bounds in gltf");
+    }
+
+    assert (env->range.accessor.begin >= range_buffer_view.begin);
+    assert (range_buffer_view.end >= env->range.accessor.end);
+    
+    if (env->range.accessor.begin < range_buffer_view.begin || range_buffer_view.end < env->range.accessor.end)
+    {
+	log_fatal ("Accessor range is out of bounds in gltf");
+    }
+
+    return true;
+    
+fail:
+    return false;
 }

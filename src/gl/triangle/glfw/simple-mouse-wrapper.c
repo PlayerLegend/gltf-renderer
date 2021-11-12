@@ -8,6 +8,8 @@
 #include "simple-mouse-wrapper.h"
 #include "../../../log/log.h"
 
+static fvec2 _mouse_position;
+
 static void _error_callback(int error, const char* description)
 {
     log_error ("Error: %s\n", description);
@@ -34,7 +36,8 @@ static void _key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 static void _cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    
+    _mouse_position.x = xpos;
+    _mouse_position.y = ypos;
 }
 
 window * create_window ()
@@ -85,12 +88,21 @@ void swap_window (window * window)
 void inputs_update (inputs * in)
 {
     glfwPollEvents ();
+
+    in->mouse_delta = _mouse_position;
+    vec2_subtract (in->mouse_delta, in->mouse_position);
+    in->mouse_position = _mouse_position;
 }
 
 void inputs_reset (inputs * in)
 {
     in->quit = false;
     in->mouse_delta = (fvec2){0,0};
+}
+
+void inputs_lock_mouse (window * window)
+{
+    glfwSetInputMode((GLFWwindow*)window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 bool window_should_close (window * window)
