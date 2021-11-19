@@ -1,19 +1,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "../../../../glad/include/glad/glad.h"
+#include "../../../glad/include/glad/glad.h"
 #define FLAT_INCLUDES
-#include "../../../vec/vec.h"
-#include "../../../vec/vec3.h"
-#include "../../../range/def.h"
-#include "../../../window/def.h"
+#include "../../vec/vec.h"
+#include "../../vec/vec3.h"
+#include "../../range/def.h"
+#include "../../window/def.h"
 #include "GLfloat3.h"
-#include "../../../keyargs/keyargs.h"
-#include "../../../json/json.h"
-#include "../../../gltf/gltf.h"
+#include "../../keyargs/keyargs.h"
+#include "../../json/json.h"
+#include "../../gltf/gltf.h"
 #include "load_indices.h"
-#include "../../../window/alloc.h"
-#include "../../../log/log.h"
+#include "../../window/alloc.h"
+#include "../../log/log.h"
 
 static void load_indices_from_uint8 (window_uint32_t * output, gltf_accessor_env * env)
 {

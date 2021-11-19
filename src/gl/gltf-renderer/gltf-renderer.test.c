@@ -11,8 +11,10 @@
 #include "../../vec/vec.h"
 #include "../../vec/vec2.h"
 #include "../../vec/vec3.h"
+#include "../../vec/vec4.h"
 #include "../../keyargs/keyargs.h"
 #include "../../vec/mat4.h"
+#include "../../vec/view.h"
 #include "../../json/json.h"
 #include "../../gltf/gltf.h"
 #include "../mesh/def.h"
@@ -53,9 +55,11 @@ int main(int argc, char * argv[])
     //while((err = glGetError()) != GL_NO_ERROR)
 
     gl_mesh_instance instance = {0};
-    gl_view view = {0};
+    gl_view view = { .quaternion = { 0, 0, 0, 1 } };
 
     mesh_instance_set_mesh(&instance, buffer->meshes);
+
+    instance.quaternion = (fvec4){ 0, 0, 0, 1 };
        
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -65,22 +69,59 @@ int main(int argc, char * argv[])
     glUseProgram (program_id);
 
     inputs inputs = {0};
-
+    
     inputs_lock_mouse (window);
+    inputs_reset (&inputs);
+
+    view_normals view_normals;
+    fvec3 view_axis_add_vec;
+    fvec3 view_axis_add_scale;
+    fvec3 view_axis_add_part;
     
     while (!window_should_close (window))
     {
-	float sway = sin(glfwGetTime());
+	//float sway = sin(glfwGetTime());
 	
 	inputs_update (&inputs);
 
 	//view.position.z = sway;
-	instance.position.z = -3;
-	instance.position.x = sway;
+	//instance.position.z = -3;
+	//instance.position.y = sway / 10;
+	//instance.position.x = sway;
+
+	view_normals_setup(&view_normals, &view.quaternion);
 	
-	view.axis.y += inputs.mouse_delta.x / 1000;
-	view.axis.x += inputs.mouse_delta.y / 1000;
-	    
+	//log_normal ("%f [%f %f %f]", vec3_dot (view_normals.right, view_normals.up), view_normals.forward.x, view_normals.forward.y, view_normals.forward.z);
+
+	view_axis_add_scale = (fvec3)
+	{
+	    .y = (float) inputs.mouse_delta.y / 1000.0,
+	    .x = (float) inputs.mouse_delta.x / 1000.0
+	};
+
+	fvec3 up = { 0, 1, 0 }; //view_normals.up;
+	view_axis_add_part = (fvec3) vec3_scale_init (up, view_axis_add_scale.x);
+	view_axis_add_vec = view_axis_add_part;
+
+	fvec3 right = { 1, 0, 0 }; //view_normals.right;
+	view_axis_add_part = (fvec3) vec3_scale_init (right, view_axis_add_scale.y);
+	vec3_add (view_axis_add_vec, view_axis_add_part);
+
+	fvec4 new_quaternion;
+	vec4_setup_rotation_quaternion(&new_quaternion, &view_axis_add_vec);
+
+	//log_debug ("rotation %f", new_quaternion.w);
+	
+	//view_axis_add(&view.axis, &view_axis_add_vec);
+	//view.axis = view_axis_add_vec;
+
+	vec4_apply_rotation_quaternion(&view.quaternion, &new_quaternion);
+
+	//instance.position = (fvec3) vec3_scale_init(view.axis, sway / 15.0);
+
+	log_normal ("modify: %f %f %f %f", new_quaternion.x, new_quaternion.y, new_quaternion.z, new_quaternion.w);
+	//log_normal ("Quaternion: %f %f %f %f", view.quaternion.x, view.quaternion.y, view.quaternion.z, view.quaternion.w);
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
 	gl_buffer_draw(buffer, &view, program_id);

@@ -9,11 +9,6 @@
 #include "mat4.h"
 #include "../log/log.h"
 
-inline static fvec vlen (const fvec3 * a)
-{
-    return sqrt (a->x * a->x + a->y * a->y + a->z * a->z);
-}
-
 void apply_translation (mat4 input, fvec3 * tl)
 {
 #define tl_matrix_unwrap(row) input[12 + row] = input[0 + row]*tl->x + input[4 + row]*tl->y + input[8 + row]*tl->z + input[12 + row];
@@ -22,55 +17,19 @@ void apply_translation (mat4 input, fvec3 * tl)
     tl_matrix_unwrap(2);
     tl_matrix_unwrap(3);
 }
-/*
-typedef struct perspective_args perspective_args;
-struct perspective_args {
-    fvec fovy;
-    fvec aspect;
-    fvec near;
-    fvec far;
-};
-
-typedef struct object_args object_args;
-struct object_args {
-    fvec3 origin;
-    fvec3 rotation;
-    };*/
-
-void setup_rotation_quaternion (fvec4 * q, const fvec3 * axis)
-{
-    fvec length = (axis->x || axis->y || axis->z) ? vlen (axis) : 1;
-    
-    fvec3 axis_normal =
-	{
-	    .x = axis->x / length,
-	    .y = axis->y / length,
-	    .z = axis->z / length
-	};
-
-    float cos_angle_2 = cos(length / 2);
-    float sin_angle_2 = sin(length / 2);
-
-    q->x = sin_angle_2 * axis_normal.x;
-    q->y = sin_angle_2 * axis_normal.y;
-    q->z = sin_angle_2 * axis_normal.z;
-
-    q->w = cos_angle_2;
-}
 
 keyargs_define(mat4_setup_rotation_matrix)
 {
-    fvec4 q;
+    /*// https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
     
-    setup_rotation_quaternion (&q, &args.axis);
-    
-    // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
     
     float s = 1 / (+ q.x * q.x
 		   + q.y * q.y
 		   + q.z * q.z
 		   + q.w * q.w);
 
+    s = 1;
+    
     float s2 = 2 * s;
 
     (*args.result)[0]  = 1 - s2 * (q.y * q.y + q.z * q.z);
@@ -91,7 +50,71 @@ keyargs_define(mat4_setup_rotation_matrix)
     (*args.result)[12] = 0;
     (*args.result)[13] = 0;
     (*args.result)[14] = 0;
-    (*args.result)[15] = 1;
+    (*args.result)[15] = 1;*/
+
+    mat4 a;
+    a[0] = args.quaternion->w;
+    a[1] = -args.quaternion->z;
+    a[2] = args.quaternion->y;
+    a[3] = -args.quaternion->x;
+
+    a[4] = args.quaternion->z;
+    a[5] = args.quaternion->w;
+    a[6] = -args.quaternion->x;
+    a[7] = -args.quaternion->y;
+
+    a[8] = -args.quaternion->y;
+    a[9] = args.quaternion->x;
+    a[10] = args.quaternion->w;
+    a[11] = -args.quaternion->z;
+
+    a[12] = args.quaternion->x;
+    a[13] = args.quaternion->y;
+    a[14] = args.quaternion->z;
+    a[15] = args.quaternion->w;
+
+    mat4 b;
+    b[0] = args.quaternion->w;
+    b[1] = -args.quaternion->z;
+    b[2] = args.quaternion->y;
+    b[3] = args.quaternion->x;
+
+    b[4] = args.quaternion->z;
+    b[5] = args.quaternion->w;
+    b[6] = -args.quaternion->x;
+    b[7] = args.quaternion->y;
+
+    b[8] = -args.quaternion->y;
+    b[9] = args.quaternion->x;
+    b[10] = args.quaternion->w;
+    b[11] = args.quaternion->z;
+    
+    b[12] = -args.quaternion->x;
+    b[13] = -args.quaternion->y;
+    b[14] = -args.quaternion->z;
+    b[15] = args.quaternion->w;
+
+    mat4_multiply(args.result, &a, &b);
+
+    /*(*args.result)[0] = 2 * (q.w * q.w + q.x * q.x) - 1;
+    (*args.result)[1] = 2 * (q.w * q.y + q.w * q.z);
+    (*args.result)[2] = 2 * (q.x * q.z - q.w * q.y);
+    (*args.result)[3] = 0;
+    
+    (*args.result)[0] = 2 * (q.x * q.y - q.w * q.z);
+    (*args.result)[0] = 2 * (q.w * q.w + q.y * q.y) - 1;
+    (*args.result)[0] = 2 * (q.y * q.z + q.w * q.x);
+    (*args.result)[0] = 0;
+    
+    (*args.result)[0] = 2 * (q.x * q.z + q.w * q.y);
+    (*args.result)[0] = 2 * (q.y * q.z - q.w * q.x);
+    (*args.result)[0] = 2 * (q.w * q.w + q.z * q.z) - 1;
+    (*args.result)[0] = 0;
+    
+    (*args.result)[12] = 0;
+    (*args.result)[13] = 0;
+    (*args.result)[14] = 0;
+    (*args.result)[15] = 1;*/
 }
 
 keyargs_define(mat4_setup_projection_matrix)
@@ -168,7 +191,7 @@ keyargs_define(mat4_setup_scale_matrix)
     (*args.result)[15] = 1;
 }
 
-keyargs_define(mat4_setup_transform_matrix)
+/*keyargs_define(mat4_setup_transform_matrix)
 {
     mat4 a, b, c;
 
@@ -184,7 +207,7 @@ keyargs_define(mat4_setup_transform_matrix)
     mat4_setup_projection_matrix(.result = &a, .fovy = args.fovy, .aspect = 1, .near = 0.01, .far = 1);
 
     mat4_multiply (args.result, &a, &b);
-}
+    }*/
 
 void mat4_init_identity (mat4 mat)
 {
@@ -310,4 +333,15 @@ void mat4_setup_identity_matrix (mat4 * a)
     (*a)[13] = 0;
     (*a)[14] = 0;
     (*a)[15] = 1;
+}
+
+void mat4_multiply_right_vec (fvec4 * result, const mat4 * a, const fvec4 * b)
+{
+#define right_vec_dot(i)						\
+    (*a)[0 + i] * b->x + (*a)[4 + i] * b->y + (*a)[8 + i] * b->z + (*a)[12 + i] * b->w
+
+    result->x = right_vec_dot(0);
+    result->y = right_vec_dot(1);
+    result->z = right_vec_dot(2);
+    result->w = right_vec_dot(3);
 }

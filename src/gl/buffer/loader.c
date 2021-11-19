@@ -17,9 +17,10 @@
 #include "../../gltf/gltf.h"
 #include "../../uri/uri.h"
 #include "../../log/log.h"
-#include "accessor_loaders/GLfloat3.h"
-#include "accessor_loaders/load_indices.h"
-#include "accessor_loaders/load_GLfloat3.h"
+#include "../../gltf/accessor_loaders/GLfloat3.h"
+#include "../../gltf/accessor_loaders/load_indices.h"
+#include "../../gltf/accessor_loaders/load_GLfloat3.h"
+#include "../../vec/vec4.h"
 #include "../../vec/mat4.h"
 #include "../mesh/def.h"
 #include "def.h"
@@ -137,7 +138,7 @@ gl_buffer * gl_buffer_load (int uri_count, const char ** uris)
     
     for (int i = 0; i < uri_count; i++)
     {
-	if (!uri_load (&uri_contents, uris[i]))
+	if (!uri_load (&uri_contents, NULL, "%s", uris[i]))
 	{
 	    log_fatal ("Failed to load uri %s", uris[i]);
 	}
@@ -198,42 +199,3 @@ gl_buffer * gl_buffer_load (int uri_count, const char ** uris)
 fail:
     return NULL;
 }
-
-/*
-void mesh_batch_draw (mesh_batch * batch, int shader)
-{
-    range_typedef(mesh,mesh);
-
-    range_mesh meshes = { .begin = batch->meshes, .end = batch->meshes + batch->mesh_count };
-
-    mesh * mesh;
-
-    mesh_instance ** instance;
-    
-    glBindBuffer (GL_ARRAY_BUFFER, batch->vbo);
-    glBindVertexArray(batch->vao);
-
-    int translation_matrix_id = glGetUniformLocation(shader, "uniform_translation_matrix");
-    int rotation_matrix_id = glGetUniformLocation(shader, "uniform_rotation_matrix");
-
-    struct {
-	mat4 translation;
-	mat4 rotation;
-    }
-	matrix;
-
-    for_range (mesh, meshes)
-    {
-	for_range (instance, mesh->instances.region)
-	{
-	    mat4_setup_translation_matrix (.result = &matrix.translation, .translation = { 0, 0.5 * sin(glfwGetTime()), 0 } );
-	    mat4_setup_rotation_matrix(.result = &matrix.rotation, .axis = {cos(glfwGetTime()), sin(glfwGetTime()), 0});
-	    
-	    glUniformMatrix4fv(translation_matrix_id, 1, GL_FALSE, matrix.translation);
-	    glUniformMatrix4fv(rotation_matrix_id, 1, GL_FALSE, matrix.rotation);
-	    
-	    glDrawArrays (GL_TRIANGLES, mesh->vertices.begin, mesh->vertices.end);
-	}
-    }
-}
-*/

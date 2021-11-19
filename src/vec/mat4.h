@@ -2,6 +2,7 @@
 #define FLAT_INCLUDES
 #include "vec.h"
 #include "vec3.h"
+#include "vec4.h"
 #include "../keyargs/keyargs.h"
 #endif
 
@@ -16,6 +17,8 @@ void mat4_swap_init_identity (mat4_swap * swap);
 void add_translation_matrix (mat4 input, fvec3 tl);
 
 void mat4_multiply (mat4 * result, const mat4 * a, const mat4 * b);
+
+void mat4_multiply_right_vec (fvec4 * result, const mat4 * a, const fvec4 * b);
 
 // based on the information found here https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml
 #define mat4_setup_projection_matrix(...) keyargs_call(mat4_setup_projection_matrix, __VA_ARGS__)
@@ -39,7 +42,7 @@ keyargs_declare(void, mat4_setup_scale_matrix,
 #define mat4_setup_rotation_matrix(...) keyargs_call(mat4_setup_rotation_matrix, __VA_ARGS__)
 keyargs_declare(void, mat4_setup_rotation_matrix,
 		mat4 * result;
-		fvec3 axis;);
+		const fvec4 * quaternion;);
 
 #define mat4_setup_transform_matrix(...) keyargs_call(mat4_setup_transform_matrix, __VA_ARGS__)
 keyargs_declare(void, mat4_setup_transform_matrix,

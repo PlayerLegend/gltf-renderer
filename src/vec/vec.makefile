@@ -1,6 +1,7 @@
 C_PROGRAMS += test/vec
 C_PROGRAMS += test/mat4
 RUN_TESTS += test/vec
+RUN_TESTS += test/mat4
 
 vec-tests: test/vec
 vec-tests: test/mat4

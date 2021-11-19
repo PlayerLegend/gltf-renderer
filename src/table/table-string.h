@@ -2,8 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #define FLAT_INCLUDES
-#include "../array/range.h"
-#include "../array/buffer.h"
+#include "../range/def.h"
 #include "table.h"
 #endif
 

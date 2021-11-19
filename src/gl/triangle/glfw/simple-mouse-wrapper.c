@@ -92,12 +92,23 @@ void inputs_update (inputs * in)
     in->mouse_delta = _mouse_position;
     vec2_subtract (in->mouse_delta, in->mouse_position);
     in->mouse_position = _mouse_position;
+
+    if (in->mouse_delta.x > 100)
+    {
+	in->mouse_delta.x = 0;
+    }
+    
+    if (in->mouse_delta.y > 100)
+    {
+	in->mouse_delta.y = 0;
+    }
 }
 
 void inputs_reset (inputs * in)
 {
     in->quit = false;
     in->mouse_delta = (fvec2){0,0};
+    in->mouse_position = _mouse_position;
 }
 
 void inputs_lock_mouse (window * window)

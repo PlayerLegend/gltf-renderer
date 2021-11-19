@@ -1,11 +1,14 @@
 #include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 #include "../../../glad/include/glad/glad.h"
+#include <GLFW/glfw3.h>
 #define FLAT_INCLUDES
 #include "../../range/def.h"
 #include "../../window/def.h"
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
+#include "../../vec/vec4.h"
 #include "../../keyargs/keyargs.h"
 #include "../../vec/mat4.h"
 #include "../../json/json.h"
@@ -73,15 +76,17 @@ void gl_buffer_draw (gl_buffer * buffer, gl_view * view, int shader)
     }
 	matrix;
 
+    GLuint time_location = glGetUniformLocation (shader, "uniform_time");
+
     mat4_setup_translation_matrix(.result = &matrix.view.translation, .translation = view->position);
-    mat4_setup_rotation_matrix(.result = &matrix.view.rotation, .axis = view->axis);
+    mat4_setup_rotation_matrix(.result = &matrix.view.rotation, .quaternion = &view->quaternion);
     mat4_multiply (&matrix.view.transform, &matrix.view.translation, &matrix.view.rotation);
 
     mat4_setup_projection_matrix(.result = &matrix.projection,
 				 .fovy = 2.0 * 3.14159 / (3.0 * 2),
 				 .aspect = 1,
-				 .near = 1,
-				 .far = 10);
+				 .near = 0.01,
+				 .far = 1000);
     
     glUniformMatrix4fv(matrix_id.view_rotation, 1, GL_FALSE, matrix.view.rotation);
     glUniformMatrix4fv(matrix_id.view_translation, 1, GL_FALSE, matrix.view.translation);
@@ -92,7 +97,7 @@ void gl_buffer_draw (gl_buffer * buffer, gl_view * view, int shader)
 	for_range (instance, mesh->instances.region)
 	{
 	    mat4_setup_translation_matrix (.result = &matrix.model.translation, .translation = (*instance)->position);
-	    mat4_setup_rotation_matrix (.result = &matrix.model.rotation, .axis = (*instance)->axis);
+	    mat4_setup_rotation_matrix (.result = &matrix.model.rotation, .quaternion = &(*instance)->quaternion);
 
 	    mat4_multiply (&matrix.model.transform, &matrix.model.translation, &matrix.model.rotation);
 	    
@@ -107,6 +112,8 @@ void gl_buffer_draw (gl_buffer * buffer, gl_view * view, int shader)
 	    glUniformMatrix4fv(matrix_id.mvp_rotation, 1, GL_FALSE, matrix.mvp.rotation);
 	    glUniformMatrix4fv(matrix_id.mvp_transform, 1, GL_FALSE, matrix.mvp.transform);
 	    glUniformMatrix4fv(matrix_id.projection, 1, GL_FALSE, matrix.projection);
+
+	    glUniform1f (time_location, glfwGetTime());
 	    
 	    glDrawArrays (GL_TRIANGLES, mesh->index.begin, mesh->index.end);
 	}

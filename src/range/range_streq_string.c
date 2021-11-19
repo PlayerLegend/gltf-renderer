@@ -1,9 +1,9 @@
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 #define FLAT_INCLUDES
-#include "range.h"
+#include "def.h"
 #include "string.h"
-#include "../libc/string.h"
 
 bool range_streq_string (const range_const_char * a, const char * b)
 {

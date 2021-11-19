@@ -7,6 +7,7 @@
 #include "../../window/def.h"
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
+#include "../../vec/vec4.h"
 #include "../../keyargs/keyargs.h"
 #include "../../json/json.h"
 #include "../../gltf/gltf.h"

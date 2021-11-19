@@ -1,6 +1,7 @@
 #ifndef FLAT_INCLUDES
 #define FLAT_INCLUDES
 #include "vec.h"
+#include "vec3.h"
 #endif
 
 #define vec4(type) struct { type x; type y; type z; type w; }
@@ -11,14 +12,5 @@
 typedef vec4(ivec) ivec4;
 typedef vec4(fvec) fvec4;
 
-//#define TEST_VEC4_H
-#ifdef TEST_VEC4_H
-#ifdef NDEBUG
-#error "Tests must be built in debug mode."
-#endif
-#include <assert.h>
-int main (int argc, char * argv[])
-{
-    
-}
-#endif
+void vec4_setup_rotation_quaternion (fvec4 * q, const fvec3 * axis);
+void vec4_apply_rotation_quaternion (fvec4 * target, fvec4 * apply);
