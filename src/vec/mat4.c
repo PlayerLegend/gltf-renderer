@@ -20,38 +20,39 @@ void apply_translation (mat4 input, fvec3 * tl)
 
 keyargs_define(mat4_setup_rotation_matrix)
 {
-    /*// https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
+    // https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
     
     
-    float s = 1 / (+ q.x * q.x
-		   + q.y * q.y
-		   + q.z * q.z
-		   + q.w * q.w);
+    float s = 1 / (+ args.quaternion->x * args.quaternion->x
+		   + args.quaternion->y * args.quaternion->y
+		   + args.quaternion->z * args.quaternion->z
+		   + args.quaternion->w * args.quaternion->w);
 
     s = 1;
     
     float s2 = 2 * s;
 
-    (*args.result)[0]  = 1 - s2 * (q.y * q.y + q.z * q.z);
-    (*args.result)[1]  = s2 * (q.x * q.y + q.z * q.w);
-    (*args.result)[2]  = s2 * (q.x * q.z - q.y * q.w);
+    (*args.result)[0]  = 1 - s2 * (args.quaternion->y * args.quaternion->y + args.quaternion->z * args.quaternion->z);
+    (*args.result)[1]  = s2 * (args.quaternion->x * args.quaternion->y + args.quaternion->z * args.quaternion->w);
+    (*args.result)[2]  = s2 * (args.quaternion->x * args.quaternion->z - args.quaternion->y * args.quaternion->w);
     (*args.result)[3]  = 0;
 
-    (*args.result)[4]  = s2 * (q.x * q.y - q.z * q.w);
-    (*args.result)[5]  = 1 - s2 * (q.x * q.x + q.z * q.z);
-    (*args.result)[6]  = s2 * (q.y * q.z + q.x * q.w);
+    (*args.result)[4]  = s2 * (args.quaternion->x * args.quaternion->y - args.quaternion->z * args.quaternion->w);
+    (*args.result)[5]  = 1 - s2 * (args.quaternion->x * args.quaternion->x + args.quaternion->z * args.quaternion->z);
+    (*args.result)[6]  = s2 * (args.quaternion->y * args.quaternion->z + args.quaternion->x * args.quaternion->w);
     (*args.result)[7]  = 0;
     
-    (*args.result)[8]  = s2 * (q.x * q.z + q.y * q.w);
-    (*args.result)[9]  = s2 * (q.y * q.z - q.x * q.w);
-    (*args.result)[10] = 1 - s2 * (q.x * q.x + q.y * q.y);
+    (*args.result)[8]  = s2 * (args.quaternion->x * args.quaternion->z + args.quaternion->y * args.quaternion->w);
+    (*args.result)[9]  = s2 * (args.quaternion->y * args.quaternion->z - args.quaternion->x * args.quaternion->w);
+    (*args.result)[10] = 1 - s2 * (args.quaternion->x * args.quaternion->x + args.quaternion->y * args.quaternion->y);
     (*args.result)[11] = 0;
 
     (*args.result)[12] = 0;
     (*args.result)[13] = 0;
     (*args.result)[14] = 0;
-    (*args.result)[15] = 1;*/
+    (*args.result)[15] = 1;
 
+    /*
     mat4 a;
     a[0] = args.quaternion->w;
     a[1] = -args.quaternion->z;
@@ -94,7 +95,7 @@ keyargs_define(mat4_setup_rotation_matrix)
     b[14] = -args.quaternion->z;
     b[15] = args.quaternion->w;
 
-    mat4_multiply(args.result, &a, &b);
+    mat4_multiply(args.result, &a, &b);*/
 
     /*(*args.result)[0] = 2 * (q.w * q.w + q.x * q.x) - 1;
     (*args.result)[1] = 2 * (q.w * q.y + q.w * q.z);

@@ -80,12 +80,12 @@ int main(int argc, char * argv[])
     
     while (!window_should_close (window))
     {
-	//float sway = sin(glfwGetTime());
+	float sway = sin(glfwGetTime());
 	
 	inputs_update (&inputs);
 
 	//view.position.z = sway;
-	//instance.position.z = -3;
+	instance.position.z = sway / 10;
 	//instance.position.y = sway / 10;
 	//instance.position.x = sway;
 
@@ -99,28 +99,36 @@ int main(int argc, char * argv[])
 	    .x = (float) inputs.mouse_delta.x / 1000.0
 	};
 
-	fvec3 up = { 0, 1, 0 }; //view_normals.up;
+	//fvec3 up = { 0, 1, 0 }; //view_normals.up;
+	fvec3 up = view_normals.up;
 	view_axis_add_part = (fvec3) vec3_scale_init (up, view_axis_add_scale.x);
 	view_axis_add_vec = view_axis_add_part;
 
-	fvec3 right = { 1, 0, 0 }; //view_normals.right;
+	//fvec3 right = { 1, 0, 0 }; //view_normals.right;
+	fvec3 right = view_normals.right;
 	view_axis_add_part = (fvec3) vec3_scale_init (right, view_axis_add_scale.y);
 	vec3_add (view_axis_add_vec, view_axis_add_part);
 
-	fvec4 new_quaternion;
-	vec4_setup_rotation_quaternion(&new_quaternion, &view_axis_add_vec);
-
-	//log_debug ("rotation %f", new_quaternion.w);
+	float roll = vec4_quaternion_roll_mod(&view.quaternion);
+	float yaw = vec4_quaternion_yaw(&view.quaternion);
+	float pitch = vec4_quaternion_pitch(&view.quaternion);
+	//float roll_abs = fabs(roll);
+	//fvec3 roll_vec = { .x = -1 / 1000.0 };
+	float pi = 3.14159;
+	float roll_vec_scale = -roll;
+	if (fabs(yaw) < 0.5 * pi)
+	{
+	    //roll_vec_scale = 0;
+	}
+	fvec3 roll_vec = vec3_scale_init(view_normals.forward, roll_vec_scale);
 	
-	//view_axis_add(&view.axis, &view_axis_add_vec);
-	//view.axis = view_axis_add_vec;
-
-	vec4_apply_rotation_quaternion(&view.quaternion, &new_quaternion);
-
-	//instance.position = (fvec3) vec3_scale_init(view.axis, sway / 15.0);
-
-	log_normal ("modify: %f %f %f %f", new_quaternion.x, new_quaternion.y, new_quaternion.z, new_quaternion.w);
+	vec4_apply_rotation_axis(&view.quaternion, &view_axis_add_vec);
+	vec4_apply_rotation_axis(&view.quaternion, &roll_vec);
+        
 	//log_normal ("Quaternion: %f %f %f %f", view.quaternion.x, view.quaternion.y, view.quaternion.z, view.quaternion.w);
+	log_normal ("roll %f", roll / pi);
+	log_normal ("pitch %f", pitch / pi);
+	log_normal ("yaw %f", yaw / pi);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 

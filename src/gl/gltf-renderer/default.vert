@@ -26,7 +26,7 @@ void main()
 	uniform_projection *
 	uniform_view_rotation *
 	uniform_view_translation *
-//	uniform_model_rotation *
+	uniform_model_rotation *
 	uniform_model_translation *
 	vec4(attribute_position, 1.0);
     //gl_Position = vec4(attribute_position, 1.0);

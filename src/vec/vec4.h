@@ -13,4 +13,14 @@ typedef vec4(ivec) ivec4;
 typedef vec4(fvec) fvec4;
 
 void vec4_setup_rotation_quaternion (fvec4 * q, const fvec3 * axis);
-void vec4_apply_rotation_quaternion (fvec4 * target, fvec4 * apply);
+void vec4_apply_rotation_quaternion (fvec4 * target, const fvec4 * apply);
+
+void vec4_apply_rotation_axis (fvec4 * target, const fvec3 * axis);
+void vec4_apply_rotation_axis_angle (fvec4 * target, const fvec3 * axis, fvec angle);
+
+float vec4_quaternion_yaw (const fvec4 * q);
+float vec4_quaternion_pitch (const fvec4 * q);
+float vec4_quaternion_roll (const fvec4 * q);
+fvec vec4_quaternion_roll_mod (const fvec4 * q);
+
+float vec4_vlen (const fvec4 * v);

@@ -93,7 +93,7 @@ void inputs_update (inputs * in)
     vec2_subtract (in->mouse_delta, in->mouse_position);
     in->mouse_position = _mouse_position;
 
-    if (in->mouse_delta.x > 100)
+    /*if (in->mouse_delta.x > 100)
     {
 	in->mouse_delta.x = 0;
     }
@@ -101,7 +101,7 @@ void inputs_update (inputs * in)
     if (in->mouse_delta.y > 100)
     {
 	in->mouse_delta.y = 0;
-    }
+	}*/
 }
 
 void inputs_reset (inputs * in)

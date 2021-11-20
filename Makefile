@@ -205,6 +205,7 @@ src/lang/preprocessor/preprocessor.o: src/convert/def.h
 src/lang/preprocessor/preprocessor.o: src/lang/error/error.h
 src/lang/preprocessor/preprocessor.o: src/lang/tree/tree.h
 src/lang/error/error.o: src/log/log.h
+src/glfw/inputs/fps.o: src/vec/vec.h src/vec/vec2.h src/vec/vec3.h
 src/immutable/immutable.o: src/immutable/immutable.h src/range/def.h
 src/immutable/immutable.o: src/table/table.h src/table/table-string.h
 src/immutable/test/immutable.test.o: src/immutable/immutable.h
@@ -315,8 +316,9 @@ src/gl/mesh/def.o: src/vec/vec3.h src/vec/vec4.h src/keyargs/keyargs.h
 src/gl/mesh/def.o: src/json/json.h src/gltf/gltf.h
 src/gl/mesh/def.o: glad/include/glad/glad.h glad/include/KHR/khrplatform.h
 src/gl/mesh/def.o: src/range/def.h src/window/def.h src/vec/vec.h
-src/gl/mesh/def.o: src/vec/vec3.h src/keyargs/keyargs.h src/json/json.h
-src/gl/mesh/def.o: src/gltf/gltf.h src/physics/mesh/def.h src/window/alloc.h
+src/gl/mesh/def.o: src/vec/vec3.h src/vec/vec4.h src/keyargs/keyargs.h
+src/gl/mesh/def.o: src/json/json.h src/gltf/gltf.h src/physics/mesh/def.h
+src/gl/mesh/def.o: src/window/alloc.h
 src/gl/buffer/draw.o: src/window/string.h glad/include/glad/glad.h
 src/gl/buffer/draw.o: glad/include/KHR/khrplatform.h src/range/def.h
 src/gl/buffer/draw.o: src/window/def.h src/vec/vec.h src/vec/vec3.h

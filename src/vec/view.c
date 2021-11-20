@@ -11,8 +11,10 @@
 void view_normals_setup (view_normals * target, const fvec4 * quaternion)
 {
     mat4 rotation_matrix = {0};
+
+    fvec4 quaternion_fix = { .x = -quaternion->x, .y = -quaternion->y, .z = -quaternion->z, .w = quaternion->w };
     
-    mat4_setup_rotation_matrix(.result = &rotation_matrix, .quaternion = quaternion);
+    mat4_setup_rotation_matrix(.result = &rotation_matrix, .quaternion = &quaternion_fix);
 
     fvec4 in;
     fvec4 out;
