@@ -11,12 +11,12 @@
 
 void phys_mesh_tri_from_GLfloat3 (phys_mesh_tri * result, GLfloat3 positions[3])
 {
-    fvec3 a = vec3_difference(positions[0], positions[1]);
-    fvec3 b = vec3_difference(positions[1], positions[2]);
+    fvec3 a = vec3_subtract_init(positions[0], positions[1]);
+    fvec3 b = vec3_subtract_init(positions[0], positions[2]);
 
     fvec3 cross = vec3_cross (a, b);
 
-    fvec cross_scale = 1 / sqrt (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z);
+    fvec cross_scale = 1.0 / sqrt (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z);
 
     vec3_scale (cross, cross_scale);
 

@@ -11,8 +11,10 @@
 #include "../window/def.h"
 //#include "../file/file.h"
 #include "../keyargs/keyargs.h"
-#include "../json/json.h"
-#include "gltf.h"
+#include "../json/def.h"
+#include "../json/parse.h"
+#include "../json/traverse.h"
+#include "def.h"
 
 // misc helpers
 
@@ -169,46 +171,19 @@ static size_t _get_accessor_component_size (gltf_accessor_component_type compone
 
 // glb_toc_*
 
-bool glb_toc_load_memory (glb_toc * toc, void * start, size_t size)
+bool glb_toc_load_memory (glb_toc * toc, const range_const_unsigned_char * memory)
 {
-    toc->header = start;
-    toc->json = (void*)((char*)start + sizeof(*toc->header));
-
-    if ((void*)((char*)start + size) < (void*)(toc->json + 1))
+    if ((size_t) range_count (*memory) < sizeof(*toc->header) + sizeof(*toc->json) + sizeof(*toc->bin))
     {
-	log_error ("glb file is truncated");
-	return false;
-    }
-    
-    if (toc->header->magic != GLB_MAGIC)
-    {
-	log_error ("glb file has wrong magic");
 	return false;
     }
 
-    if (toc->json->type != GLB_CHUNKTYPE_JSON)
-    {
-	log_error ("glb json chunk is malformed");
-	return false;
-    }
+    toc->header = (const glb_header*) memory->begin;
+    toc->json = (const glb_chunk_header*)(memory->begin + sizeof(*toc->header));
+    toc->bin = (const glb_chunk_header*)((const char*) (toc->json + 1) + toc->json->length);
 
-    toc->bin = (void*)((char*)toc->json + toc->json->length + sizeof (*toc->json));
-
-    if ((void*)((char*)start + size) < (void*)(toc->bin + 1))
+    if ( (const unsigned char*)(toc->bin + 1) + toc->bin->length > memory->end)
     {
-	log_error ("glb binary data header is truncated");
-	return false;
-    }
-
-    if (toc->bin->type != GLB_CHUNKTYPE_BIN)
-    {
-	log_error ("glb bin chunk is malformed");
-	return false;
-    }
-
-    if ((void*)((char*)start + size) < (void*)((char*)toc->bin + toc->bin->length))
-    {
-	log_error ("glb binary data is truncated");
 	return false;
     }
 
@@ -264,8 +239,6 @@ static bool _gltf_read_buffer (void * output, gltf * gltf, const json_object * j
     
     json_value * value = json_lookup (json_buffer, "uri");
 
-    gltf_buffer->data = NULL;
-    
     if (!value || value->type == JSON_NULL)
     {
 	gltf_buffer->uri = NULL;
@@ -526,7 +499,7 @@ fail:
 
 //
 
-bool gltf_from_json (gltf * gltf, json_value * json_root_value)
+static bool gltf_from_json (gltf * gltf, json_value * json_root_value)
 {
     memset (gltf, 0, sizeof (*gltf));
 
@@ -609,61 +582,66 @@ fail:
     return false;
 }
 
-bool gltf_accessor_env_setup (gltf_accessor_env * env, const glb_toc * toc, gltf_accessor * import_accessor)
+bool gltf_parse (gltf * gltf, const range_const_unsigned_char * memory)
 {
-    env->accessor = import_accessor;
+    json_value * json_root = json_parse(&memory->char_cast.const_cast);
 
-    env->type = env->accessor->type;
-    env->normalized = env->accessor->normalized;
+    bool status = gltf_from_json(gltf, json_root);
 
-    gltf_buffer_view * buffer_view = env->accessor->buffer_view;
+    json_free (json_root);
 
-    gltf_buffer * buffer = buffer_view->buffer;
+    return status;
+}
 
-    unsigned char * buffer_data = buffer->data ? buffer->data : toc->bin->data;
+static void gltf_asset_clear (gltf_asset * target)
+{
+    free (target->generator);
+    free (target->version);
+}
 
-    if (buffer_data == toc->bin->data)
+static void gltf_buffer_clear (gltf_buffer * target)
+{
+    free (target->uri);
+}
+
+static void gltf_material_clear (gltf_material * target)
+{
+    free (target->name);
+}
+
+static void gltf_mesh_primitive_clear (gltf_mesh_primitive * target)
+{
+    free (target->attributes.texcoord.begin);
+    free (target->attributes.color.begin);
+    free (target->attributes.joints.begin);
+    free (target->attributes.weights.begin);
+
+    free (target->targets.begin);
+}
+
+static void gltf_mesh_clear (gltf_mesh * target)
+{
+    free (target->name);
+    gltf_mesh_primitive * target_primitive;
+
+    for_range (target_primitive, target->primitives)
     {
-	assert (buffer->byte_length <= toc->bin->length);
+	gltf_mesh_primitive_clear(target_primitive);
     }
 
-    env->component_type = env->accessor->component_type;
-    env->component_size = gltf_component_size (env->accessor->component_type);
-    
-    range_unsigned_char range_buffer = { .begin = buffer_data, .end = buffer_data + buffer->byte_length };
+    free (target->primitives.begin);
+}
 
-    range_unsigned_char range_buffer_view = { .begin = range_buffer.begin + buffer_view->byte_offset, .end = range_buffer_view.begin + buffer_view->byte_length };
+void gltf_clear (gltf * gltf)
+{
+    gltf_asset_clear (&gltf->asset);
 
-    log_debug ("buffer_view byte stride: %d", buffer_view->byte_stride);
-    log_debug ("else %d * %d = %d", env->component_size, env->type, env->component_size * env->type);
-    env->byte_stride = !buffer_view->byte_stride ? (env->component_size * env->type) : buffer_view->byte_stride;
-    
+#define gltf_clear_array(type, name)		\
+    { type * i; for_range (i, gltf->name) type##_clear(i); free (gltf->name.begin); }
 
-    log_debug ("%d mod %d * %d (=%d) == %d", env->byte_stride, env->component_size, env->type, env->component_size * env->type, env->byte_stride % (env->component_size * env->type));
-    
-    assert (env->byte_stride % (env->component_size * env->type) == 0);
-    assert (env->byte_stride >= env->component_size * env->type);
-
-    env->range.accessor.begin = range_buffer_view.begin + env->accessor->byte_offset;
-    env->range.accessor.end = env->range.accessor.begin + env->accessor->count * env->byte_stride;
-
-    log_debug ("%d vs %d", range_count(range_buffer_view), env->accessor->byte_offset + env->accessor->count * env->byte_stride);
-    
-    if (range_buffer_view.begin < range_buffer.begin || range_buffer.end < range_buffer_view.end)
-    {
-	log_fatal ("Buffer view range is out of bounds in gltf");
-    }
-
-    assert (env->range.accessor.begin >= range_buffer_view.begin);
-    assert (range_buffer_view.end >= env->range.accessor.end);
-    
-    if (env->range.accessor.begin < range_buffer_view.begin || range_buffer_view.end < env->range.accessor.end)
-    {
-	log_fatal ("Accessor range is out of bounds in gltf");
-    }
-
-    return true;
-    
-fail:
-    return false;
+    gltf_clear_array (gltf_buffer, buffers);
+    free (gltf->buffer_views.begin);
+    free (gltf->accessors.begin);
+    gltf_clear_array (gltf_material, materials);
+    gltf_clear_array (gltf_mesh, meshes);
 }

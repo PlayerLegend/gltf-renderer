@@ -10,6 +10,19 @@
 
 static fvec2 _mouse_position;
 
+typedef struct {
+    void * arg;
+    void (*callback)(void * arg);
+}
+    key_action;
+
+struct {
+    key_action press;
+    key_action release;
+}
+    _keyboard_action[GLFW_KEY_LAST + 1],
+    _mouse_action[GLFW_MOUSE_BUTTON_LAST + 1];
+
 static void _error_callback(int error, const char* description)
 {
     log_error ("Error: %s\n", description);
@@ -31,7 +44,40 @@ bool init_graphics ()
 
 static void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    key_action select = {0};
     
+    if (action == GLFW_PRESS)
+    {
+	select = _keyboard_action[key].press;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+	select = _keyboard_action[key].release;
+    }
+
+    if (select.callback)
+    {
+	select.callback(select.arg);
+    }
+}
+
+static void _mouse_button_callback(GLFWwindow * window, int button, int action, int mods)
+{
+    key_action select = {0};
+    
+    if (action == GLFW_PRESS)
+    {
+	select = _mouse_action[button].press;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+	select = _mouse_action[button].release;
+    }
+
+    if (select.callback)
+    {
+	select.callback(select.arg);
+    }
 }
 
 static void _cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -65,6 +111,7 @@ window * create_window ()
     }
 
     glfwSetKeyCallback(new_window, _key_callback);
+    glfwSetMouseButtonCallback(new_window, _mouse_button_callback);
     glfwSetCursorPosCallback(new_window, _cursor_position_callback);
 
     return (window*) new_window;

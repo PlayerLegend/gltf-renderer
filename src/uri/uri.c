@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #define FLAT_INCLUDES
 #include "../range/def.h"
 #include "../range/string.h"
@@ -17,38 +18,48 @@
 #include "uri.h"
 #include "../log/log.h"
 
-bool uri_load (window_unsigned_char * contents, const char * cwd, const char * format, ...)
+static convert_interface * uri_open_file (const char * path)
 {
-    window_char uri = {0};
-
-    va_list ap;
-    va_start (ap, format);
-    window_vprintf (&uri, format, ap);
-    va_end (ap);
-    
-    int fd = open (uri.region.begin, O_RDONLY);
+    int fd = open (path, O_RDONLY);
 
     if (fd < 0)
     {
-	log_fatal ("Failed to open uri: %s", uri);
+	perror (path);
+	return NULL;
     }
-    
-    convert_interface_fd fd_read = convert_interface_fd_init(fd);
-    bool error = false;
 
-    if (!convert_load_all(&error, contents, &fd_read.interface))
+    convert_interface_fd * fd_interface = calloc (1, sizeof(*fd_interface));
+
+    *fd_interface = convert_interface_fd_init (fd);
+
+    return &fd_interface->interface;
+}
+
+convert_interface * uri_open (const char * cwd, const char * format, ...)
+{
+    window_char uri = {0};
+    
     {
-	convert_clear (&fd_read.interface);
-	log_fatal ("Failed to load uri: %s", uri);
+	va_list ap;
+	va_start (ap, format);
+	window_vprintf (&uri, format, ap);
+	va_end (ap);
     }
 
-    convert_clear (&fd_read.interface);
+    convert_interface * retval = uri_open_file (uri.region.begin);
+
+    if (!retval)
+    {
+	log_fatal ("Failed to open uri %s", uri.alloc.begin);
+    }
+
     free (uri.alloc.begin);
-    return true;
-    
+
+    return retval;
+
 fail:
     free (uri.alloc.begin);
-    return false;
+    return NULL;
 }
 
 bool resolve_path (window_char * output, const char * cwd, window_char * input)
@@ -141,3 +152,39 @@ bool uri_realpath (window_char * path, const char * cwd, const char * format, ..
 //    free (uri.alloc.begin);
 //    return false;
 }
+
+/*
+bool uri_load (window_unsigned_char * contents, const char * cwd, const char * format, ...)
+{
+    window_char uri = {0};
+
+    va_list ap;
+    va_start (ap, format);
+    window_vprintf (&uri, format, ap);
+    va_end (ap);
+    
+    int fd = open (uri.region.begin, O_RDONLY);
+
+    if (fd < 0)
+    {
+	log_fatal ("Failed to open uri: %s", uri);
+    }
+    
+    convert_interface_fd fd_read = convert_interface_fd_init(fd);
+    bool error = false;
+
+    if (!convert_load_all(&error, contents, &fd_read.interface))
+    {
+	convert_clear (&fd_read.interface);
+	log_fatal ("Failed to load uri: %s", uri);
+    }
+
+    convert_clear (&fd_read.interface);
+    free (uri.alloc.begin);
+    return true;
+    
+fail:
+    free (uri.alloc.begin);
+    return false;
+}
+*/

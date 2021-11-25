@@ -78,3 +78,9 @@ bool convert_load_all (bool * error, window_unsigned_char * output, convert_inte
 
     return !*error;
 }
+
+void convert_free(convert_interface * interface)
+{
+    interface->clear(interface);
+    free (interface);
+}

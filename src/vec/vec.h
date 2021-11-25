@@ -5,3 +5,5 @@
 
 typedef int ivec;
 typedef float fvec;
+
+#define FVEC_EPSILON 0.000001

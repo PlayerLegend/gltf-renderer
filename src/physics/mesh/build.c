@@ -105,14 +105,16 @@ static void find_list_center (fvec3 * center, const range_size_t * list, const r
 	vec3_add(*center, tri->position[2]);
     }
 
-    double scale = (double) 1 / (double) range_count (*list);
+    double scale = 1.0 / (double) range_count (*list);
 
     vec3_scale(*center, scale);
+
+    log_debug ("Center [%f %f %f]", center->x, center->y, center->z);
 }
 
 static double calc_dist (const phys_mesh_tri * tri, const fvec3 * point)
 {
-    fvec3 displacement = vec3_difference(*point, tri->position[0]);
+    fvec3 displacement = vec3_subtract_init(*point, tri->position[0]);
 
     return vec3_dot(displacement, tri->normal);
 }
@@ -147,8 +149,11 @@ static size_t * find_splitting_tri (const range_size_t * list, const range_const
 	    dist = -dist;
 	}
 
+	log_debug ("dist %f", dist);
+	    
 	if (dist < best_dist)
 	{
+	    log_debug ("dist fix %f < %f", dist, best_dist);
 	    best_dist = dist;
 	    best_index = index;
 	}
@@ -183,7 +188,7 @@ static void sort_list (sorted_lists * sorted, const phys_mesh_tri * plane, const
 	assert (tri != plane);
 
 #define calc_tri_dot(i)				\
-	offset = (fvec3) vec3_difference (tri->position[i], plane->position[0]); \
+	offset = (fvec3) vec3_subtract_init (tri->position[i], plane->position[0]); \
 	dot[i] = vec3_dot (offset, plane->normal);
 
 	calc_tri_dot(0);

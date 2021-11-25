@@ -107,8 +107,8 @@ char * _table_copy_strdup(const char * src);
     {								\
 	table_##table_name##_item * item = *(bucket);		\
 	*bucket = item->next;					\
-	table_##table_name##_key_free ( item->_key );	\
-	table_##table_name##_value_free ( item->value );	\
+	table_##table_name##_key_free ( (item->_key) );		\
+	table_##table_name##_value_free ( (item->value) );	\
 	free (item);						\
     }
 

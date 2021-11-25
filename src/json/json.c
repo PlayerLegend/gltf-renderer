@@ -9,13 +9,16 @@
 #include "../window/def.h"
 #include "../window/alloc.h"
 #include "../keyargs/keyargs.h"
-#include "json.h"
+#include "def.h"
+#include "parse.h"
+#include "traverse.h"
 #include "../log/log.h"
 #include "../list/list.h"
 #include "../libc/string-extensions.h"
 
 #include "../table/table.h"
-#define table_string_value json_value value
+#define table_string_value json_value child_value
+#define table_string_value_free(value) json_clear (&(value).child_value)
 #include "../table/table-string.h"
 
 struct json_object {
@@ -328,9 +331,12 @@ success:
     return true;
 }
 
+static void json_clear (json_value * value);
+
 static void _free_object (json_object * object)
 {
-    
+    table_string_clear (object->map);
+    free (object);
 }
 
 static json_object * _read_object (range_const_char * text, json_tmp * tmp)
@@ -382,7 +388,7 @@ static json_object * _read_object (range_const_char * text, json_tmp * tmp)
 
 	text->begin++;
 	
-	set_value = &table_string_include(object->map, tmp->text.region.begin)->value.value;
+	set_value = &table_string_include(object->map, tmp->text.region.begin)->value.child_value;
 
 	if (!_read_value (set_value, text, tmp))
 	{
@@ -409,18 +415,21 @@ success:
     return object;
 }
 
-json_value * json_parse (const char * begin, const char * end)
+json_value * json_parse (const range_const_char * input)
 {
-    range_const_char text = { .begin = begin, .end = end };
+    range_const_char text = *input;
     json_tmp tmp = {0};
 
     json_value * value = calloc (1, sizeof(*value));
 
     if (!_read_value (value, &text, &tmp))
     {
+	free (tmp.text.alloc.begin);
 	json_free (value);
 	return NULL;
     }
+
+    free (tmp.text.alloc.begin);
 
     return value;
 }
@@ -434,10 +443,10 @@ json_value * json_lookup (const json_object * object, const char * key)
 
     table_string_item * item = table_get_bucket_item (bucket);
 
-    return item ? &item->value.value : NULL;
+    return item ? &item->value.child_value : NULL;
 }
 
-void json_free (json_value * value)
+static void json_clear (json_value * value)
 {
     json_value * member;
     
@@ -446,8 +455,9 @@ void json_free (json_value * value)
     case JSON_ARRAY:
 	for_range(member, value->array)
 	{
-	    json_free (member);
+	    json_clear (member);
 	}
+	free (value->array.begin);
 	break;
 
     case JSON_BADTYPE:
@@ -466,7 +476,17 @@ void json_free (json_value * value)
 	break;
 
     }
+}
 
+void json_free (json_value * value)
+{
+    if (!value)
+    {
+	return;
+    }
+
+    json_clear (value);
+    
     free (value);
 }
 

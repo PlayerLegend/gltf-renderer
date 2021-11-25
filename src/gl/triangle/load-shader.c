@@ -58,7 +58,7 @@ GLuint load_shader_program (int vertex_fd, int fragment_fd)
 	log_fatal ("Failed to read vertex shader");
     }
 
-    log_normal ("Shader contents: %.*s", range_count(file_contents.region), file_contents.region.begin);
+    //log_normal ("Shader contents: %.*s", range_count(file_contents.region), file_contents.region.begin);
     
     GLuint vertex_id = _build_shader (file_contents.signed_cast.region.begin, GL_VERTEX_SHADER);
 
@@ -81,7 +81,7 @@ GLuint load_shader_program (int vertex_fd, int fragment_fd)
 	goto fail;
     }
 
-    log_normal ("Shader contents: %.*s", range_count(file_contents.region), file_contents.region.begin);
+    //log_normal ("Shader contents: %.*s", range_count(file_contents.region), file_contents.region.begin);
 
     GLuint fragment_id = _build_shader (file_contents.signed_cast.region.begin, GL_FRAGMENT_SHADER);
     

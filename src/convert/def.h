@@ -34,6 +34,7 @@ inline static void convert_clear (convert_interface * interface)
     interface->clear(interface);
 }
 
+void convert_free(convert_interface * interface);
 bool convert_fill (bool * error, window_unsigned_char * output, convert_interface * interface);
 bool convert_fill_limit (bool * error, window_unsigned_char * output, convert_interface * interface, size_t limit);
 bool convert_drain (bool * error, window_unsigned_char * output, convert_interface * interface);

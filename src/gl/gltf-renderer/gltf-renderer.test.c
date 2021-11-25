@@ -15,20 +15,99 @@
 #include "../../keyargs/keyargs.h"
 #include "../../vec/mat4.h"
 #include "../../vec/view.h"
-#include "../../json/json.h"
-#include "../../gltf/gltf.h"
+#include "../../json/def.h"
+#include "../../gltf/def.h"
 #include "../mesh/def.h"
 #include "../buffer/def.h"
 #include "../buffer/draw.h"
 #include "../buffer/loader.h"
 #include "../../log/log.h"
-#include "../triangle/glfw/simple-mouse-wrapper.h"
+#include "../../ui/init.h"
+#include "../../ui/window.h"
+#include "../../ui/button-id.h"
+#include "../../ui/input.h"
 #include "../triangle/load-shader.h"
 
-int main(int argc, char * argv[])
+typedef struct {
+    gl_view view;
+    view_normals view_normals;
+}
+    inputs_arg;
+
+void inputs_mouse_motion_callback (const ui_input_event_mouse_motion * event, void * arg_void)
 {
-    init_graphics();
-    window * window = create_window();
+    inputs_arg * arg = arg_void;
+
+    fvec2 mouse_motion = { event->delta.x / 1000.0, event->delta.y / 1000.0 };
+
+    //log_debug ("delta %f %f", mouse_motion.x, mouse_motion.y);
+    
+    fvec3 up = vec3_scale_init(arg->view_normals.up, mouse_motion.x);
+    fvec3 right = vec3_scale_init(arg->view_normals.right, mouse_motion.y);
+
+    fvec3 axis = vec3_add_init (up, right);
+
+    //log_debug ("axis %f %f %f", axis.x, axis.y, axis.z);
+    
+    vec4_apply_rotation_axis(&arg->view.quaternion, &axis);
+    view_normals_setup(&arg->view_normals, &arg->view.quaternion);
+}
+
+void move_view_right (inputs_arg * arg)
+{
+    fvec3 delta = vec3_scale_init(arg->view_normals.right, 0.1);
+    vec3_add(arg->view.position, delta);
+}
+
+void move_view_left (inputs_arg * arg)
+{
+    fvec3 delta = vec3_scale_init(arg->view_normals.right, -0.1);
+    vec3_add(arg->view.position, delta);
+}
+
+void move_view_forward (inputs_arg * arg)
+{
+    fvec3 delta = vec3_scale_init(arg->view_normals.forward, 0.1);
+    vec3_add(arg->view.position, delta);
+    //log_debug ("pointer %p", arg);
+    log_debug ("fw %f %f %f", arg->view.position.x, arg->view.position.y, arg->view.position.z);
+    //log_debug ("fw %f %f %f %f", arg->view.quaternion.x, arg->view.quaternion.y, arg->view.quaternion.z, arg->view.quaternion.w);
+}
+
+void move_view_back (inputs_arg * arg)
+{
+    fvec3 delta = vec3_scale_init(arg->view_normals.forward, -0.1);
+    vec3_add(arg->view.position, delta);
+}
+
+void inputs_key_left_callback (const ui_input_event_keyboard_button * event, void * arg_void)
+{
+    move_view_left (arg_void);
+}
+
+void inputs_key_right_callback (const ui_input_event_keyboard_button * event, void * arg_void)
+{
+    move_view_right (arg_void);
+}
+
+void inputs_key_forward_callback (const ui_input_event_keyboard_button * event, void * arg_void)
+{
+    move_view_forward (arg_void);
+}
+
+void inputs_key_back_callback (const ui_input_event_keyboard_button * event, void * arg_void)
+{
+    move_view_back (arg_void);
+}
+
+int gltf_renderer(int argc, char * argv[])
+{
+    if (!ui_init())
+    {
+	return 1;
+    }
+    
+    ui_window * window = ui_window_new();
     
     if (argc != 2)
     {
@@ -55,90 +134,54 @@ int main(int argc, char * argv[])
     //while((err = glGetError()) != GL_NO_ERROR)
 
     gl_mesh_instance instance = {0};
-    gl_view view = { .quaternion = { 0, 0, 0, 1 } };
 
-    mesh_instance_set_mesh(&instance, buffer->meshes);
+    inputs_arg inputs_arg = { .view.quaternion = { 0, 0, 0, 1 } };
+    view_normals_setup(&inputs_arg.view_normals, &inputs_arg.view.quaternion);
+
+    range_gl_mesh meshes;
+
+    gl_buffer_mesh_access (&meshes, buffer);
+
+    mesh_instance_set_mesh (&instance, meshes.begin);
 
     instance.quaternion = (fvec4){ 0, 0, 0, 1 };
        
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    //int transform_matrix_location = glGetUniformLocation(program_id, "uniform_transform_matrix");
-    
     glUseProgram (program_id);
 
-    inputs inputs = {0};
-    
-    inputs_lock_mouse (window);
-    inputs_reset (&inputs);
+    ui_input_lock_mouse (window);
 
-    view_normals view_normals;
-    fvec3 view_axis_add_vec;
-    fvec3 view_axis_add_scale;
-    fvec3 view_axis_add_part;
+    ui_input_bind_mouse_motion(inputs_mouse_motion_callback, &inputs_arg);
+    ui_input_bind_keyboard_press('W', inputs_key_forward_callback, &inputs_arg);
+    ui_input_bind_keyboard_press('D', inputs_key_left_callback, &inputs_arg);
+    ui_input_bind_keyboard_press('S', inputs_key_back_callback, &inputs_arg);
+    ui_input_bind_keyboard_press('A', inputs_key_right_callback, &inputs_arg);
+    log_debug ("pointer a %p", &inputs_arg);
     
-    while (!window_should_close (window))
+    while (!ui_window_should_close (window))
     {
-	float sway = sin(glfwGetTime());
-	
-	inputs_update (&inputs);
-
-	//view.position.z = sway;
-	instance.position.z = sway / 10;
-	//instance.position.y = sway / 10;
-	//instance.position.x = sway;
-
-	view_normals_setup(&view_normals, &view.quaternion);
-	
-	//log_normal ("%f [%f %f %f]", vec3_dot (view_normals.right, view_normals.up), view_normals.forward.x, view_normals.forward.y, view_normals.forward.z);
-
-	view_axis_add_scale = (fvec3)
-	{
-	    .y = (float) inputs.mouse_delta.y / 1000.0,
-	    .x = (float) inputs.mouse_delta.x / 1000.0
-	};
-
-	//fvec3 up = { 0, 1, 0 }; //view_normals.up;
-	fvec3 up = view_normals.up;
-	view_axis_add_part = (fvec3) vec3_scale_init (up, view_axis_add_scale.x);
-	view_axis_add_vec = view_axis_add_part;
-
-	//fvec3 right = { 1, 0, 0 }; //view_normals.right;
-	fvec3 right = view_normals.right;
-	view_axis_add_part = (fvec3) vec3_scale_init (right, view_axis_add_scale.y);
-	vec3_add (view_axis_add_vec, view_axis_add_part);
-
-	float roll = vec4_quaternion_roll_mod(&view.quaternion);
-	float yaw = vec4_quaternion_yaw(&view.quaternion);
-	float pitch = vec4_quaternion_pitch(&view.quaternion);
-	//float roll_abs = fabs(roll);
-	//fvec3 roll_vec = { .x = -1 / 1000.0 };
-	float pi = 3.14159;
-	float roll_vec_scale = -roll;
-	if (fabs(yaw) < 0.5 * pi)
-	{
-	    //roll_vec_scale = 0;
-	}
-	fvec3 roll_vec = vec3_scale_init(view_normals.forward, roll_vec_scale);
-	
-	vec4_apply_rotation_axis(&view.quaternion, &view_axis_add_vec);
-	vec4_apply_rotation_axis(&view.quaternion, &roll_vec);
-        
-	//log_normal ("Quaternion: %f %f %f %f", view.quaternion.x, view.quaternion.y, view.quaternion.z, view.quaternion.w);
-	log_normal ("roll %f", roll / pi);
-	log_normal ("pitch %f", pitch / pi);
-	log_normal ("yaw %f", yaw / pi);
+	ui_input_update ();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
-	gl_buffer_draw(buffer, &view, program_id);
+	gl_buffer_draw(buffer, &inputs_arg.view, program_id);
 	
 	assert (glGetError() == GL_NO_ERROR);
-	swap_window (window);
+	ui_window_swap (window);
+	//log_debug ("position %f %f %f", inputs_arg.view.position.x,
+	//	   inputs_arg.view.position.y,
+	//	   inputs_arg.view.position.z);
     }
 
-    destroy_window(window);
+    gl_buffer_free (buffer);
+    ui_window_destroy(window);
 
     return 0;
+}
+
+int main(int argc, char * argv[])
+{
+    return gltf_renderer (argc, argv);
 }

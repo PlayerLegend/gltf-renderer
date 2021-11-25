@@ -9,8 +9,8 @@
 #include "../../vec/vec3.h"
 #include "../../vec/vec4.h"
 #include "../../keyargs/keyargs.h"
-#include "../../json/json.h"
-#include "../../gltf/gltf.h"
+#include "../../json/def.h"
+#include "../../gltf/def.h"
 #endif
 
 typedef struct gl_mesh gl_mesh;
@@ -28,6 +28,7 @@ typedef struct {
 }
     gl_mesh_instance;
 
+range_typedef(gl_mesh, gl_mesh);
 range_typedef(gl_mesh_instance*, gl_mesh_instance_p);
 window_typedef(gl_mesh_instance*, gl_mesh_instance_p);
 

@@ -4,6 +4,7 @@
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
 #include "../../range/def.h"
+#include "../../window/def.h"
 #endif
 
 typedef struct {
@@ -13,6 +14,9 @@ typedef struct {
     phys_mesh_tri;
 
 range_typedef(phys_mesh_tri,phys_mesh_tri);
+window_typedef(phys_mesh_tri,phys_mesh_tri);
+range_typedef(phys_mesh_tri*,phys_mesh_tri_p);
+window_typedef(phys_mesh_tri*,phys_mesh_tri_p);
 
 typedef struct phys_mesh_node phys_mesh_node;
 

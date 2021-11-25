@@ -4,8 +4,6 @@
 #include <stdio.h>
 #define FLAT_INCLUDES
 #include "../range/def.h"
-#include "../keyargs/keyargs.h"
-#include "../json/json.h"
 #endif
 
 #define GLB_MAGIC 0x46546C67
@@ -30,16 +28,15 @@ struct glb_chunk_header
 typedef struct glb_toc glb_toc;
 struct glb_toc
 {
-    glb_header * header;
-    glb_chunk_header * json;
-    glb_chunk_header * bin;
+    const glb_header * header;
+    const glb_chunk_header * json;
+    const glb_chunk_header * bin;
 };
 
 typedef struct gltf_buffer gltf_buffer;
 struct gltf_buffer {
-    const char * uri;
+    char * uri;
     size_t byte_length;
-    unsigned char * data;
 };
 
 typedef struct gltf_buffer_view gltf_buffer_view;
@@ -150,30 +147,16 @@ struct gltf {
 
 typedef union {
     union {
-	int8_t * i8;
-	uint8_t * u8;
-	int16_t * i16;
-	uint16_t * u16;
-	uint32_t * u32;
-	float * f;
+	const int8_t * i8;
+	const uint8_t * u8;
+	const int16_t * i16;
+	const uint16_t * u16;
+	const uint32_t * u32;
+	const float * f;
     };
-    unsigned char * pointer;
+    const unsigned char * pointer;
 }
     gltf_component;
-
-typedef struct {
-    gltf_accessor * accessor;
-    gltf_accessor_type type;
-    gltf_accessor_component_type component_type;
-    size_t component_size;
-    size_t byte_stride;
-    bool normalized;
-    struct {
-	range_unsigned_char accessor;
-    }
-	range;
-}
-    gltf_accessor_env;
 
 inline static size_t gltf_component_size (gltf_accessor_component_type type)
 {
@@ -189,16 +172,19 @@ inline static size_t gltf_component_size (gltf_accessor_component_type type)
     }
 }
 
+typedef struct {
+    gltf_accessor * accessor;
+    gltf_accessor_type type;
+    gltf_accessor_component_type component_type;
+    size_t component_size;
+    size_t byte_stride;
+    bool normalized;
+    struct {
+	range_const_unsigned_char accessor;
+    }
+	range;
+}
+    gltf_accessor_env;
+
 #define for_gltf_accessor(component, accessor_env)	\
     for ((component).pointer = (accessor_env).range.accessor.begin; (component).pointer < (accessor_env).range.accessor.end; (component).pointer += (accessor_env).byte_stride)
-
-bool glb_toc_load_memory (glb_toc * toc, void * start, size_t size);
-
-bool gltf_from_json (gltf * gltf, json_value * json_root_value);
-
-bool gltf_accessor_env_setup (gltf_accessor_env * env, const glb_toc * toc, gltf_accessor * import_accessor);
-
-inline static void gltf_clear (gltf * gltf)
-{
-    // todo
-}

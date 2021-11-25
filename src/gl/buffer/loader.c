@@ -13,8 +13,12 @@
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
 #include "../../keyargs/keyargs.h"
-#include "../../json/json.h"
-#include "../../gltf/gltf.h"
+#include "../../json/def.h"
+#include "../../gltf/def.h"
+#include "../../gltf/env.h"
+#include "../../gltf/parse.h"
+#include "../../convert/def.h"
+#include "../../gltf/convert.h"
 #include "../../uri/uri.h"
 #include "../../log/log.h"
 #include "../../gltf/accessor_loaders/GLfloat3.h"
@@ -24,6 +28,7 @@
 #include "../../vec/mat4.h"
 #include "../mesh/def.h"
 #include "def.h"
+#include "internal/def.h"
 #include "loader.h"
 
 typedef struct {
@@ -81,27 +86,16 @@ static bool add_gltf_mesh (vbo_loader_buffers * buffers, const glb_toc * toc, gl
     return true;
 }
 
-static bool add_gltf (vbo_loader_buffers * buffers, const range_const_unsigned_char * contents)
+static bool add_mesh_from_interface (vbo_loader_buffers * buffers, convert_interface * interface)
 {
     glb_toc toc;
-    
-    if (!glb_toc_load_memory (&toc, contents->char_cast.begin, range_count(*contents)))
-    {
-	log_fatal ("Failed to parse glb from input");
-    }
-
-    json_value * json_root = json_parse((const char*)toc.json->data, (const char*)toc.json->data + toc.json->length);
-
-    if (!json_root)
-    {
-	log_fatal ("Failed to parse json from input");
-    }
-
     gltf gltf;
-    
-    if (!gltf_from_json (&gltf, json_root))
+
+    window_unsigned_char bytes_buffer = {0};
+
+    if (!gltf_load_from_interface(&gltf, &toc, &bytes_buffer, interface))
     {
-	log_fatal ("Failed to parse gltf from input");
+	return false;
     }
 
     *window_push(buffers->start_index) = range_count(buffers->position.region);
@@ -116,44 +110,71 @@ static bool add_gltf (vbo_loader_buffers * buffers, const range_const_unsigned_c
 	}
     }
 
+    free (bytes_buffer.alloc.begin);
+    gltf_clear (&gltf);
     return true;
-    
+
 fail:
-	return false;
+    free (bytes_buffer.alloc.begin);
+    gltf_clear (&gltf);
+    return false;
 }
 
 static void free_buffers(vbo_loader_buffers * buffers)
 {
+    free (buffers->start_index.alloc.begin);
+    free (buffers->indices.alloc.begin);
     free (buffers->position.alloc.begin);
     free (buffers->normal.alloc.begin);
+}
+
+static bool load_vbo_loader_buffers (vbo_loader_buffers * buffers, int uri_count, const char ** uris)
+{
+    convert_interface * uri_interface;
+
+    bool success;
+    
+    for (int i = 0; i < uri_count; i++)
+    {
+	uri_interface = uri_open (NULL, "%s", uris[i]);
+
+	if (!uri_interface)
+	{
+	    return false;
+	}
+	
+	success = add_mesh_from_interface (buffers, uri_interface);
+
+	convert_free (uri_interface);
+
+	if (!success)
+	{
+	    return false;
+	}
+    }
+
+    return true;
 }
 
 gl_buffer * gl_buffer_load (int uri_count, const char ** uris)
 {
     assert (glGetError() == GL_NO_ERROR);
     
-    window_unsigned_char uri_contents = {0};
-
     vbo_loader_buffers buffers = {0};
+
+    unsigned char * vbo_contents = NULL;
     
-    for (int i = 0; i < uri_count; i++)
+    if (!load_vbo_loader_buffers (&buffers, uri_count, uris))
     {
-	if (!uri_load (&uri_contents, NULL, "%s", uris[i]))
-	{
-	    log_fatal ("Failed to load uri %s", uris[i]);
-	}
-
-	add_gltf(&buffers, &uri_contents.region.const_cast);
+	log_fatal ("Could not load a specified mesh uri for drawing");
     }
-
+    
     size_t position_buffer_size = range_count (buffers.position.region) * sizeof(*buffers.position.region.begin);
     size_t normal_buffer_size = range_count (buffers.normal.region) * sizeof(*buffers.normal.region.begin);
 
     size_t vbo_size = position_buffer_size + normal_buffer_size;
 
-    log_debug ("vbo size %zu", vbo_size);
-    
-    unsigned char * vbo_contents = calloc (1, vbo_size);
+    vbo_contents = calloc (1, vbo_size);
 
     memcpy (vbo_contents, buffers.position.region.begin, position_buffer_size);
     memcpy (vbo_contents + position_buffer_size, buffers.normal.region.begin, normal_buffer_size);
@@ -188,14 +209,34 @@ gl_buffer * gl_buffer_load (int uri_count, const char ** uris)
     
     assert (glGetError() == GL_NO_ERROR);
 
-    if (false)
-    {
-	free (vbo_contents);
-	free_buffers (&buffers);
-    }
+    free_buffers (&buffers);
+    free (vbo_contents);
 
     return buffer;
 
 fail:
+    free (vbo_contents);
+    free_buffers (&buffers);
     return NULL;
+}
+
+void gl_buffer_free (gl_buffer * target)
+{
+    glDeleteVertexArrays (1, &target->vao);
+    glDeleteBuffers (1, &target->vbo);
+
+    struct range(gl_mesh) meshes = { .begin = target->meshes, .end = target->meshes + target->mesh_count };
+    gl_mesh * mesh;
+    gl_mesh_instance ** instance;
+
+    for_range (mesh, meshes)
+    {
+	for_range (instance, mesh->instances.region)
+	{
+	    (*instance)->parent = NULL;
+	}
+	free (mesh->instances.alloc.begin);
+    }
+
+    free (target);
 }
