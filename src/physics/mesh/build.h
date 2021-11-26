@@ -4,7 +4,7 @@
 #include "../../vec/vec.h"
 #include "../../vec/vec3.h"
 #include "../../range/def.h"
-#include "../../vec/range_vec3.h"
+#include "../../window/def.h"
 #include "def.h"
 #endif
 

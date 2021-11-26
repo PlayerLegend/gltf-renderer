@@ -21,9 +21,6 @@
 #include "../../gltf/convert.h"
 #include "../../uri/uri.h"
 #include "../../log/log.h"
-#include "../../gltf/accessor_loaders/GLfloat3.h"
-#include "../../gltf/accessor_loaders/load_indices.h"
-#include "../../gltf/accessor_loaders/load_GLfloat3.h"
 #include "../../vec/vec4.h"
 #include "../../vec/mat4.h"
 #include "../mesh/def.h"
@@ -31,30 +28,46 @@
 #include "internal/def.h"
 #include "loader.h"
 
+range_typedef(GLuint, GLuint);
+window_typedef(GLuint, GLuint);
+
+typedef vec3(GLfloat) GLfloat3;
+range_typedef(GLfloat3, GLfloat3);
+window_typedef(GLfloat3, GLfloat3);
+
 typedef struct {
     window_GLuint start_index;
-    window_uint32_t indices;
+    window_gltf_index indices;
     window_GLfloat3 position;
     window_GLfloat3 normal;
 }
     vbo_loader_buffers;
 
-static bool add_primitive_position (window_GLfloat3 * position, range_uint32_t * indices, const glb_toc * toc, gltf_mesh_primitive * primitive)
+bool GLfloat3_loader(void * target_void, const fvec3 * input)
+{
+    window_GLfloat3 * target = target_void;
+
+    *window_push (*target) = (GLfloat3) { .x = input->x, .y = input->y, .z = input->z };
+
+    return true;
+}
+
+static bool add_primitive_position (window_GLfloat3 * position, range_gltf_index * indices, const glb_toc * toc, gltf_mesh_primitive * primitive)
 {
     gltf_accessor_env env;
 
     gltf_accessor_env_setup (&env, toc, primitive->attributes.position);
 
-    return load_GLfloat3(position, indices, &env);
+    return gltf_accessor_env_load_fvec3(position, GLfloat3_loader, indices, &env);
 }
 
-static bool add_primitive_normal (window_GLfloat3 * position, range_uint32_t * indices, const glb_toc * toc, gltf_mesh_primitive * primitive)
+static bool add_primitive_normal (window_GLfloat3 * normal, range_gltf_index * indices, const glb_toc * toc, gltf_mesh_primitive * primitive)
 {
     gltf_accessor_env env;
 
     gltf_accessor_env_setup (&env, toc, primitive->attributes.normal);
 
-    return load_GLfloat3(position, indices, &env);
+    return gltf_accessor_env_load_fvec3(normal, GLfloat3_loader, indices, &env);
 }
 
 static bool add_primitive (vbo_loader_buffers * buffers, const glb_toc * toc, gltf_mesh_primitive * primitive)
@@ -64,7 +77,7 @@ static bool add_primitive (vbo_loader_buffers * buffers, const glb_toc * toc, gl
     gltf_accessor_env_setup(&env, toc, primitive->indices);
 
     window_rewrite (buffers->indices);
-    load_indices (&buffers->indices, &env);
+    gltf_accessor_env_load_indices (&buffers->indices, &env);
     
     return
 	add_primitive_position (&buffers->position, &buffers->indices.region, toc, primitive) &&

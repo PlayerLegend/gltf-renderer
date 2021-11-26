@@ -65,59 +65,12 @@ install-user:
 src/gltf/glb-toc.test.o: src/range/def.h src/keyargs/keyargs.h src/log/log.h
 src/gltf/glb-toc.test.o: src/window/def.h src/convert/def.h src/convert/fd.h
 src/gltf/glb-toc.test.o: src/gltf/convert.h
-src/gltf/convert.o: src/range/def.h src/keyargs/keyargs.h src/window/def.h
-src/gltf/convert.o: src/window/alloc.h src/convert/def.h
-src/gltf/def.o: src/range/def.h
-src/gltf/loader.o: src/range/def.h src/keyargs/keyargs.h src/window/def.h
-src/gltf/loader.o: src/convert/def.h src/gltf/loader.h src/gltf/convert.h
-src/gltf/env.o: src/range/def.h src/keyargs/keyargs.h src/gltf/def.h
-src/gltf/accessor_loaders/load_GLfloat3.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/load_GLfloat3.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/vec/vec.h src/vec/vec3.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/range/def.h src/window/def.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/gltf/accessor_loaders/GLfloat3.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/keyargs/keyargs.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/gltf/accessor_loaders/load_indices.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/gltf/accessor_loaders/load_GLfloat3.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/log/log.h src/window/alloc.h
-src/gltf/accessor_loaders/load_indices.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/load_indices.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/load_indices.o: src/vec/vec.h src/vec/vec3.h
-src/gltf/accessor_loaders/load_indices.o: src/range/def.h src/window/def.h
-src/gltf/accessor_loaders/load_indices.o: src/gltf/accessor_loaders/GLfloat3.h
-src/gltf/accessor_loaders/load_indices.o: src/keyargs/keyargs.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/vec/vec.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/vec/vec3.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/range/def.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/window/def.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/gltf/accessor_loaders/GLfloat3.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/keyargs/keyargs.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/gltf/accessor_loaders/load_indices.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/gltf/accessor_loaders/load_GLfloat3.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/log/log.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/convert/def.h
-src/gltf/accessor_loaders/test/load_GLfloat3.test.o: src/convert/fd.h
-src/gltf/accessor_loaders/load_GLfloat3.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/load_GLfloat3.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/vec/vec.h src/vec/vec3.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/range/def.h src/window/def.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/gltf/accessor_loaders/GLfloat3.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/keyargs/keyargs.h
-src/gltf/accessor_loaders/load_GLfloat3.o: src/gltf/accessor_loaders/load_indices.h
-src/gltf/accessor_loaders/GLfloat3.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/GLfloat3.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/GLfloat3.o: src/vec/vec.h src/vec/vec3.h
-src/gltf/accessor_loaders/GLfloat3.o: src/range/def.h src/window/def.h
-src/gltf/accessor_loaders/load_indices.o: glad/include/glad/glad.h
-src/gltf/accessor_loaders/load_indices.o: glad/include/KHR/khrplatform.h
-src/gltf/accessor_loaders/load_indices.o: src/vec/vec.h src/vec/vec3.h
-src/gltf/accessor_loaders/load_indices.o: src/range/def.h src/window/def.h
-src/gltf/accessor_loaders/load_indices.o: src/gltf/accessor_loaders/GLfloat3.h
-src/gltf/accessor_loaders/load_indices.o: src/keyargs/keyargs.h
-src/gltf/accessor_loaders/load_indices.o: src/gltf/accessor_loaders/load_indices.h
-src/gltf/accessor_loaders/load_indices.o: src/window/alloc.h src/log/log.h
+src/gltf/convert.o: src/range/def.h src/keyargs/keyargs.h src/json/def.h
+src/gltf/convert.o: src/window/def.h src/window/alloc.h src/convert/def.h
+src/gltf/convert.o: src/gltf/def.h src/gltf/parse.h
+src/gltf/def.o: src/range/def.h src/window/def.h
+src/gltf/env.o: src/range/def.h src/window/def.h src/vec/vec.h src/vec/vec3.h
+src/gltf/env.o: src/gltf/def.h
 src/gltf/parse.o: src/range/def.h src/gltf/def.h
 src/gltf/glb-json.util.o: src/range/def.h src/window/def.h src/window/alloc.h
 src/gltf/glb-json.util.o: src/keyargs/keyargs.h src/log/log.h
@@ -125,15 +78,15 @@ src/gltf/glb-json.util.o: src/convert/def.h src/convert/fd.h
 src/gltf/glb-json.util.o: src/gltf/convert.h
 src/gltf/gltf.o: src/log/log.h src/range/def.h src/window/def.h
 src/gltf/gltf.o: src/keyargs/keyargs.h src/json/def.h src/json/parse.h
-src/gltf/gltf.o: src/json/traverse.h
+src/gltf/gltf.o: src/json/traverse.h src/gltf/def.h
 src/gltf/convert.o: src/range/def.h src/window/def.h src/convert/def.h
 src/gltf/convert.o: src/gltf/def.h
-src/gltf/loader.o: src/range/def.h src/keyargs/keyargs.h src/window/def.h
-src/gltf/loader.o: src/convert/def.h
 src/gltf/glb-info.util.o: src/range/def.h src/keyargs/keyargs.h src/log/log.h
 src/gltf/glb-info.util.o: src/window/def.h src/convert/def.h
 src/gltf/glb-info.util.o: src/gltf/convert.h src/convert/fd.h
-src/gltf/env.o: src/range/def.h src/gltf/def.h src/gltf/env.h src/log/log.h
+src/gltf/env.o: src/range/def.h src/window/def.h src/window/alloc.h
+src/gltf/env.o: src/vec/vec.h src/vec/vec3.h src/gltf/def.h src/gltf/env.h
+src/gltf/env.o: src/log/log.h
 src/gltf/dump-vertices.util.o: src/range/def.h src/window/def.h
 src/gltf/dump-vertices.util.o: src/window/alloc.h src/keyargs/keyargs.h
 src/gltf/dump-vertices.util.o: src/log/log.h src/convert/def.h
@@ -146,10 +99,13 @@ src/physics/trace/def.o: src/vec/vec.h src/vec/vec3.h
 src/physics/trace/line.o: src/vec/vec.h src/vec/vec3.h src/gltf/def.h
 src/physics/trace/line.o: src/range/def.h src/physics/mesh/def.h
 src/physics/trace/line.o: src/physics/trace/line.h
-src/physics/mesh/load.o: src/vec/vec.h src/vec/vec3.h src/range/def.h
-src/physics/mesh/load.o: src/window/def.h src/vec/range_vec3.h
+src/physics/mesh/load.o: glad/include/glad/glad.h
+src/physics/mesh/load.o: glad/include/KHR/khrplatform.h src/vec/vec.h
+src/physics/mesh/load.o: src/vec/vec3.h src/range/def.h src/window/def.h
+src/physics/mesh/load.o: src/window/alloc.h src/vec/range_vec3.h
 src/physics/mesh/load.o: src/convert/def.h src/gltf/def.h
-src/physics/mesh/load.o: src/keyargs/keyargs.h src/gltf/convert.h
+src/physics/mesh/load.o: src/keyargs/keyargs.h src/gltf/def.h src/gltf/env.h
+src/physics/mesh/load.o: src/gltf/convert.h src/log/log.h
 src/physics/mesh/build.o: src/vec/vec.h src/vec/vec3.h src/range/def.h
 src/physics/mesh/build.o: src/vec/range_vec3.h src/window/def.h
 src/physics/mesh/build.o: src/window/alloc.h src/gltf/def.h
@@ -160,24 +116,15 @@ src/physics/mesh/subset.o: src/physics/mesh/subset.h src/window/alloc.h
 src/physics/mesh/GLfloat3.o: glad/include/glad/glad.h
 src/physics/mesh/GLfloat3.o: glad/include/KHR/khrplatform.h src/vec/vec.h
 src/physics/mesh/GLfloat3.o: src/vec/vec3.h src/range/def.h src/window/def.h
-src/physics/mesh/GLfloat3.o: src/gltf/accessor_loaders/GLfloat3.h
 src/physics/mesh/GLfloat3.o: src/gltf/def.h
 src/physics/mesh/build.o: src/vec/vec.h src/vec/vec3.h src/range/def.h
-src/physics/mesh/build.o: src/vec/range_vec3.h src/gltf/def.h
+src/physics/mesh/build.o: src/window/def.h src/gltf/def.h
 src/physics/mesh/test/load.test.o: src/log/log.h src/debug/debug.h
 src/physics/mesh/test/load.test.o: src/vec/vec.h src/vec/vec3.h
 src/physics/mesh/test/load.test.o: src/range/def.h src/window/def.h
-src/physics/mesh/test/load.test.o: src/vec/range_vec3.h
 src/physics/mesh/test/load.test.o: src/physics/mesh/def.h
-src/physics/mesh/test/load.test.o: src/physics/mesh/build.h
-src/physics/mesh/test/load.test.o: glad/include/glad/glad.h
-src/physics/mesh/test/load.test.o: glad/include/KHR/khrplatform.h
-src/physics/mesh/test/load.test.o: src/keyargs/keyargs.h
-src/physics/mesh/test/load.test.o: src/gltf/accessor_loaders/GLfloat3.h
-src/physics/mesh/test/load.test.o: src/gltf/accessor_loaders/load_indices.h
-src/physics/mesh/test/load.test.o: src/gltf/accessor_loaders/load_GLfloat3.h
-src/physics/mesh/test/load.test.o: src/gltf/accessor_loaders/GLfloat3.h
-src/physics/mesh/test/load.test.o: src/window/alloc.h src/uri/uri.h
+src/physics/mesh/test/load.test.o: src/physics/mesh/build.h src/convert/def.h
+src/physics/mesh/test/load.test.o: src/uri/uri.h src/physics/mesh/load.h
 src/physics/mesh/def.o: src/vec/vec.h src/vec/vec3.h src/range/def.h
 src/physics/mesh/def.o: src/window/def.h
 src/physics/mesh/load.o: src/vec/vec.h src/vec/vec3.h src/range/def.h
@@ -188,7 +135,6 @@ src/physics/mesh/subset.o: src/window/def.h src/gltf/def.h
 src/physics/mesh/GLfloat3.o: glad/include/glad/glad.h
 src/physics/mesh/GLfloat3.o: glad/include/KHR/khrplatform.h src/vec/vec.h
 src/physics/mesh/GLfloat3.o: src/vec/vec3.h src/range/def.h src/window/def.h
-src/physics/mesh/GLfloat3.o: src/gltf/accessor_loaders/GLfloat3.h
 src/physics/mesh/GLfloat3.o: src/gltf/def.h
 src/lang/tree/test/tree.test.o: src/range/def.h src/log/log.h
 src/lang/tree/test/tree.test.o: src/window/def.h src/convert/def.h
@@ -327,25 +273,26 @@ src/range/range_strstr_string.o: src/window/string.h
 src/gl/mesh/def.o: glad/include/glad/glad.h glad/include/KHR/khrplatform.h
 src/gl/mesh/def.o: src/range/def.h src/window/def.h src/vec/vec.h
 src/gl/mesh/def.o: src/vec/vec3.h src/vec/vec4.h src/keyargs/keyargs.h
+src/gl/mesh/def.o: src/json/def.h src/gltf/def.h
 src/gl/mesh/def.o: glad/include/glad/glad.h glad/include/KHR/khrplatform.h
 src/gl/mesh/def.o: src/range/def.h src/window/def.h src/vec/vec.h
 src/gl/mesh/def.o: src/vec/vec3.h src/vec/vec4.h src/keyargs/keyargs.h
-src/gl/mesh/def.o: src/gltf/def.h src/window/alloc.h
+src/gl/mesh/def.o: src/gltf/def.h src/gltf/def.h src/window/alloc.h
 src/gl/buffer/draw.o: src/window/string.h glad/include/glad/glad.h
 src/gl/buffer/draw.o: glad/include/KHR/khrplatform.h src/range/def.h
 src/gl/buffer/draw.o: src/window/def.h src/vec/vec.h src/vec/vec3.h
 src/gl/buffer/draw.o: src/vec/vec4.h src/keyargs/keyargs.h src/vec/mat4.h
-src/gl/buffer/draw.o: src/physics/mesh/def.h src/gltf/def.h
+src/gl/buffer/draw.o: src/json/def.h src/gltf/def.h src/physics/mesh/def.h
+src/gl/buffer/draw.o: src/gltf/def.h src/gl/buffer/internal/def.h
 src/gl/buffer/draw.o: src/gl/buffer/draw.h
 src/gl/buffer/internal/def.o: glad/include/glad/glad.h
 src/gl/buffer/internal/def.o: glad/include/KHR/khrplatform.h src/range/def.h
 src/gl/buffer/internal/def.o: src/window/def.h src/vec/vec.h src/vec/vec3.h
-src/gl/buffer/internal/def.o: src/vec/vec4.h src/keyargs/keyargs.h
+src/gl/buffer/internal/def.o: src/vec/vec4.h src/json/def.h src/gltf/def.h
 src/gl/buffer/internal/def.o: src/gl/mesh/def.h
 src/gl/buffer/def.o: glad/include/glad/glad.h glad/include/KHR/khrplatform.h
 src/gl/buffer/def.o: src/range/def.h src/window/def.h src/vec/vec.h
-src/gl/buffer/def.o: src/vec/vec3.h src/keyargs/keyargs.h
-src/gl/buffer/def.o: src/physics/mesh/def.h
+src/gl/buffer/def.o: src/vec/vec3.h src/vec/vec4.h src/physics/mesh/def.h
 src/gl/buffer/loader.o: glad/include/glad/glad.h
 src/gl/buffer/loader.o: glad/include/KHR/khrplatform.h src/range/def.h
 src/gl/buffer/loader.o: src/window/def.h src/vec/vec.h src/vec/vec3.h
@@ -358,13 +305,16 @@ src/gl/buffer/draw.o: src/vec/mat4.h src/physics/mesh/def.h src/gltf/def.h
 src/gl/buffer/loader.o: src/window/string.h glad/include/glad/glad.h
 src/gl/buffer/loader.o: glad/include/KHR/khrplatform.h src/range/def.h
 src/gl/buffer/loader.o: src/window/def.h src/window/alloc.h src/vec/vec.h
-src/gl/buffer/loader.o: src/vec/vec3.h src/keyargs/keyargs.h
+src/gl/buffer/loader.o: src/vec/vec3.h src/keyargs/keyargs.h src/json/def.h
+src/gl/buffer/loader.o: src/gltf/def.h src/gltf/env.h src/gltf/parse.h
 src/gl/buffer/loader.o: src/convert/def.h src/gltf/convert.h src/uri/uri.h
-src/gl/buffer/loader.o: src/log/log.h src/gltf/accessor_loaders/GLfloat3.h
-src/gl/buffer/loader.o: src/gltf/accessor_loaders/load_indices.h
-src/gl/buffer/loader.o: src/gltf/accessor_loaders/load_GLfloat3.h
-src/gl/buffer/loader.o: src/vec/vec4.h src/vec/mat4.h src/physics/mesh/def.h
-src/gl/buffer/loader.o: src/gltf/def.h src/gltf/loader.h
+src/gl/buffer/loader.o: src/log/log.h src/vec/vec4.h src/vec/mat4.h
+src/gl/buffer/loader.o: src/physics/mesh/def.h src/gltf/def.h
+src/gl/buffer/loader.o: src/gl/buffer/internal/def.h src/gl/buffer/loader.h
+src/gl/buffer/def.o: glad/include/glad/glad.h glad/include/KHR/khrplatform.h
+src/gl/buffer/def.o: src/range/def.h src/window/def.h src/vec/vec.h
+src/gl/buffer/def.o: src/vec/vec3.h src/vec/vec4.h src/physics/mesh/def.h
+src/gl/buffer/def.o: src/gltf/def.h src/gl/buffer/internal/def.h
 src/gl/gltf-renderer/gltf-renderer.test.o: glad/include/glad/glad.h
 src/gl/gltf-renderer/gltf-renderer.test.o: glad/include/KHR/khrplatform.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/range/def.h src/window/def.h
@@ -372,6 +322,7 @@ src/gl/gltf-renderer/gltf-renderer.test.o: src/vec/vec.h src/vec/vec2.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/vec/vec3.h src/vec/vec4.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/keyargs/keyargs.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/vec/mat4.h src/vec/view.h
+src/gl/gltf-renderer/gltf-renderer.test.o: src/json/def.h src/gltf/def.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/physics/mesh/def.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/gl/buffer/def.h
 src/gl/gltf-renderer/gltf-renderer.test.o: src/gl/buffer/draw.h
@@ -406,7 +357,7 @@ src/list/test/list.test.o: src/list/list.h src/debug/debug.h
 src/json/test/json.test.o: src/json/json.c src/window/string.h
 src/json/test/json.test.o: src/range/def.h src/window/def.h
 src/json/test/json.test.o: src/window/alloc.h src/keyargs/keyargs.h
-src/json/test/json.test.o: src/gltf/def.h src/json/parse.h
+src/json/test/json.test.o: src/gltf/def.h src/gltf/parse.h
 src/json/test/json.test.o: src/json/traverse.h src/log/log.h src/list/list.h
 src/json/test/json.test.o: src/libc/string-extensions.h src/table/table.h
 src/json/test/json.test.o: src/table/table-string.h
@@ -415,7 +366,7 @@ src/json/def.o: src/range/def.h src/keyargs/keyargs.h
 src/json/traverse.o: src/range/def.h src/keyargs/keyargs.h src/gltf/def.h
 src/json/json.o: src/window/string.h src/range/def.h src/window/def.h
 src/json/json.o: src/window/alloc.h src/keyargs/keyargs.h src/gltf/def.h
-src/json/json.o: src/json/parse.h src/json/traverse.h src/log/log.h
+src/json/json.o: src/gltf/parse.h src/json/traverse.h src/log/log.h
 src/json/json.o: src/list/list.h src/libc/string-extensions.h
 src/json/json.o: src/table/table.h src/table/table-string.h
 src/uri/uri.o: src/range/def.h src/window/def.h src/convert/def.h

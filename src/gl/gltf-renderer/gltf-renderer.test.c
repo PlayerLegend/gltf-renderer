@@ -26,6 +26,7 @@
 #include "../../ui/window.h"
 #include "../../ui/button-id.h"
 #include "../../ui/input.h"
+#include "../../ui/time.h"
 #include "../triangle/load-shader.h"
 
 typedef struct {
@@ -133,7 +134,7 @@ int gltf_renderer(int argc, char * argv[])
     assert (glGetError() == GL_NO_ERROR);
     //while((err = glGetError()) != GL_NO_ERROR)
 
-    gl_mesh_instance instance = {0};
+    gl_mesh_instance instance = { .scale = 1 };
 
     inputs_arg inputs_arg = { .view.quaternion = { 0, 0, 0, 1 } };
     view_normals_setup(&inputs_arg.view_normals, &inputs_arg.view.quaternion);
@@ -162,6 +163,7 @@ int gltf_renderer(int argc, char * argv[])
     
     while (!ui_window_should_close (window))
     {
+	instance.scale = 1.5 + sin(ui_get_time ());
 	ui_input_update ();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

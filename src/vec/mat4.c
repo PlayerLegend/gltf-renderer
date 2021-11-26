@@ -270,6 +270,8 @@ void mat4_multiply (mat4 * result, const mat4 * a, const mat4 * b)
     mat4_multiply_column(1);
     mat4_multiply_column(2);
     mat4_multiply_column(3);
+
+    mat4_transpose(result); // why
 }
 
 void mat4_transpose (mat4 * a)

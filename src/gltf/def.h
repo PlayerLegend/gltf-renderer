@@ -4,6 +4,7 @@
 #include <stdio.h>
 #define FLAT_INCLUDES
 #include "../range/def.h"
+#include "../window/def.h"
 #endif
 
 #define GLB_MAGIC 0x46546C67
@@ -145,6 +146,8 @@ struct gltf {
     struct range(gltf_mesh) meshes;
 };
 
+typedef uint32_t gltf_index;
+
 typedef union {
     union {
 	const int8_t * i8;
@@ -152,6 +155,7 @@ typedef union {
 	const int16_t * i16;
 	const uint16_t * u16;
 	const uint32_t * u32;
+	const gltf_index * index;
 	const float * f;
     };
     const unsigned char * pointer;
@@ -185,6 +189,9 @@ typedef struct {
 	range;
 }
     gltf_accessor_env;
+
+range_typedef(gltf_index, gltf_index);
+window_typedef(gltf_index, gltf_index);
 
 #define for_gltf_accessor(component, accessor_env)	\
     for ((component).pointer = (accessor_env).range.accessor.begin; (component).pointer < (accessor_env).range.accessor.end; (component).pointer += (accessor_env).byte_stride)

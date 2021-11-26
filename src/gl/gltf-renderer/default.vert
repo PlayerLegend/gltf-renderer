@@ -5,6 +5,7 @@ layout (location = 1) in vec3 attribute_normal; // the color variable has attrib
 uniform mat4 uniform_model_rotation;
 uniform mat4 uniform_model_translation;
 uniform mat4 uniform_model_transform;
+uniform mat4 uniform_model_scale;
 
 uniform mat4 uniform_view_rotation;
 uniform mat4 uniform_view_translation;
@@ -21,14 +22,18 @@ out vec3 result_color; // output a color to the fragment shader
 
 void main()
 {
+    gl_Position = uniform_mvp_transform * vec4(attribute_position, 1.0);
+    //gl_Position = uniform_projection * uniform_view_transform * vec4(attribute_position, 1.0);
     //gl_Position = uniform_mvp_transform * vec4(attribute_position, 1.0);
-    gl_Position =
+    //gl_Position = uniform_projection * uniform_view_rotation * uniform_view_translation * vec4(attribute_position, 1.0);
+    /*gl_Position =
 	uniform_projection *
 	uniform_view_rotation *
 	uniform_view_translation *
 	uniform_model_rotation *
+	uniform_model_scale *
 	uniform_model_translation *
-	vec4(attribute_position, 1.0);
+	vec4(attribute_position, 1.0);*/
     //gl_Position = vec4(attribute_position, 1.0);
     
     vec3 transform_normal = vec3(uniform_view_rotation * vec4(attribute_normal, 1.0));

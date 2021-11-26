@@ -11,4 +11,6 @@
 #include "def.h"
 #endif
 
-void phys_tri_load (window_phys_mesh_tri * result, convert_interface * interface);
+bool phys_mesh_tri_load (window_phys_mesh_tri * result, window_unsigned_char * buffer, convert_interface * interface);
+
+bool phys_mesh_node_load (range_phys_mesh_node * nodes, window_unsigned_char * buffer, convert_interface * interface);

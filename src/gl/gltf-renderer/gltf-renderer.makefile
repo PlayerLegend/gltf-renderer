@@ -15,8 +15,8 @@ test/gltf-renderer: LDLIBS += -lm
 test/gltf-renderer: glad/src/glad.o
 test/gltf-renderer: src/convert/def.o
 test/gltf-renderer: src/convert/fd.o
-test/gltf-renderer: src/gltf/accessor_loaders/load_GLfloat3.o
-test/gltf-renderer: src/gltf/accessor_loaders/load_indices.o
+#test/gltf-renderer: src/gltf/accessor_loaders/load_GLfloat3.o
+#test/gltf-renderer: src/gltf/accessor_loaders/load_indices.o
 test/gltf-renderer: src/gl/buffer/loader.o
 test/gltf-renderer: src/gl/buffer/def.o
 test/gltf-renderer: src/gl/buffer/draw.o
@@ -25,6 +25,7 @@ test/gltf-renderer: src/gl/mesh/def.o
 test/gltf-renderer: src/ui/init.o
 test/gltf-renderer: src/ui/window.o
 test/gltf-renderer: src/ui/input.o
+test/gltf-renderer: src/ui/time.o
 test/gltf-renderer: src/gl/triangle/load-shader.o
 test/gltf-renderer: src/gltf/gltf.o
 test/gltf-renderer: src/gltf/env.o

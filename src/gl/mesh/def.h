@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
     fvec3 position;
     fvec4 quaternion;
+    float scale;
     gl_mesh * parent;
 }
     gl_mesh_instance;

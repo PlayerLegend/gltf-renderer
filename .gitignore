@@ -2,3 +2,4 @@ vgcore.*
 *.o
 test/
 bin/
+core

@@ -10,8 +10,7 @@
 #include "../../vec/vec4.h"
 #include "../../keyargs/keyargs.h"
 #include "../../vec/mat4.h"
-#include "../../json/json.h"
-#include "../../gltf/gltf.h"
+#include "../../gltf/def.h"
 #include "../mesh/def.h"
 #include "def.h"
 #endif
