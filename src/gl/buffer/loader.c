@@ -204,7 +204,7 @@ gl_buffer * gl_buffer_load (int uri_count, const char ** uris)
     {
 	buffer->meshes[range_index(index, buffers.start_index.region)] = (gl_mesh)
 	{
-	    .index = { .begin = *index, .end = index + 1 < buffers.start_index.region.begin ? index[1] : buffer->vertex_count },
+	    .index = { .begin = *index, .end = index + 1 < buffers.start_index.region.end ? index[1] : buffer->vertex_count },
 	};
     }
     

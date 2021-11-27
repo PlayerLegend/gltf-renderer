@@ -17,6 +17,7 @@
 #include "def.h"
 #include "internal/def.h"
 #include "draw.h"
+#include "../../log/log.h"
 
 void gl_buffer_draw (gl_buffer * buffer, gl_view * view, int shader)
 {

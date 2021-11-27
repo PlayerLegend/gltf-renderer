@@ -41,7 +41,7 @@ static bool _mouse_motion_select;
 void ui_input_bind_keyboard_press (ui_input_keyboard_button_id id, ui_input_event_keyboard_button_callback callback, void * arg)
 {
     _keyboard_press_binds[id] = (ui_input_keyboard_button_bind) { .callback = callback, .arg = arg };
-    log_debug ("bound %d with arg %p", id, _keyboard_press_binds[id].arg);
+    //log_debug ("bound %d with arg %p", id, _keyboard_press_binds[id].arg);
 }
 
 void ui_input_bind_keyboard_release (ui_input_keyboard_button_id id, ui_input_event_keyboard_button_callback callback, void * arg)
@@ -68,7 +68,7 @@ static void _key_callback(GLFWwindow* window, int key, int scancode, int action,
 {
     ui_input_keyboard_button_bind * select = NULL;
     
-    if (key >= KEYBOARD_BUTTON_ARRAY_COUNT)
+    if (key < 0 || key >= KEYBOARD_BUTTON_ARRAY_COUNT - 1)
     {
 	return;
     }
@@ -95,7 +95,7 @@ static void _key_callback(GLFWwindow* window, int key, int scancode, int action,
 		.held_buttons = &_held_buttons,
 		.id = key,
 	    };
-	
+    
 	select->callback(&event, select->arg);
     }
 }
@@ -104,7 +104,7 @@ static void _mouse_button_callback(GLFWwindow * window, int button, int action, 
 {
     ui_input_mouse_button_bind * select = {0};
 
-    if (button >= MOUSE_BUTTON_ARRAY_COUNT)
+    if (button < 0 || button >= MOUSE_BUTTON_ARRAY_COUNT)
     {
 	return;
     }

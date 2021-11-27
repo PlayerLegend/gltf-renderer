@@ -110,14 +110,14 @@ int gltf_renderer(int argc, char * argv[])
     
     ui_window * window = ui_window_new();
     
-    if (argc != 2)
+    if (argc != 3)
     {
 	log_stderr ("Usage: %s [file]", argv[0]);
     }
 
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
     
-    gl_buffer * buffer = gl_buffer_load(1, (const char**)argv + 1);
+    gl_buffer * buffer = gl_buffer_load(argc - 1, (const char**)argv + 1);
     
     int vertex_fd = open ("src/gl/gltf-renderer/default.vert", O_RDONLY);
 
@@ -134,7 +134,8 @@ int gltf_renderer(int argc, char * argv[])
     assert (glGetError() == GL_NO_ERROR);
     //while((err = glGetError()) != GL_NO_ERROR)
 
-    gl_mesh_instance instance = { .scale = 1 };
+    gl_mesh_instance world_instance = { .scale = 1 };
+    gl_mesh_instance object_instance = { .scale = 1 };
 
     inputs_arg inputs_arg = { .view.quaternion = { 0, 0, 0, 1 } };
     view_normals_setup(&inputs_arg.view_normals, &inputs_arg.view.quaternion);
@@ -143,9 +144,13 @@ int gltf_renderer(int argc, char * argv[])
 
     gl_buffer_mesh_access (&meshes, buffer);
 
-    mesh_instance_set_mesh (&instance, meshes.begin);
+    log_debug ("Mesh count %d", range_count(meshes));
+    assert (range_count(meshes) == 2);
 
-    instance.quaternion = (fvec4){ 0, 0, 0, 1 };
+    mesh_instance_set_mesh (&world_instance, meshes.begin);
+    mesh_instance_set_mesh (&object_instance, meshes.begin + 1);
+
+    world_instance.quaternion = (fvec4){ 0, 0, 0, 1 };
        
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -163,7 +168,7 @@ int gltf_renderer(int argc, char * argv[])
     
     while (!ui_window_should_close (window))
     {
-	instance.scale = 1.5 + sin(ui_get_time ());
+	world_instance.scale = 1.5 + sin(ui_get_time ());
 	ui_input_update ();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
